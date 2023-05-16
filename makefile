@@ -10,22 +10,23 @@ DB_PASSWORD?=mongo
 
 APP=./app
 
-.PHONY: cov
-.PHONY: test
-
 .PHONY: dev
 dev:
 	MONGODB_URI=$(MONGODB_URI) \
 	JWT_SECRET=$(JWT_SECRET) \
-  REDIS_URI=redis://default:$(REDIS_PASSWORD)@localhost:6379
-  RABBIT_URI=amqp://$(RABBIT_USERNAME):$(RABBIT_PASSWORD)@localhost:5672
-  MONGODB_URI=mongodb://$(DB_USERNAME):$(DB_PASSWORD)@localhost:27017
+  REDIS_URI=redis://default:$(REDIS_PASSWORD)@localhost:6379 \
+  RABBIT_URI=amqp://$(RABBIT_USERNAME):$(RABBIT_PASSWORD)@localhost:5672 \
+  MONGODB_URI=mongodb://$(DB_USERNAME):$(DB_PASSWORD)@localhost:27017 \
 	go run $(APP)
 
 .PHONY: fmt
 fmt:
 	go fmt $(APP)
 	go mod tidy
+
+.PHONY: test
+test:
+	go test -v -cover ./ -count=1
 
 .PHONY: build
 build:

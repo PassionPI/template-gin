@@ -7,14 +7,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoCollection struct {
-	Users *mongo.Collection
-}
-
 type Mongo struct {
 	Client     *mongo.Client
 	Database   *mongo.Database
 	Collection *MongoCollection
+}
+
+type MongoCollection struct {
+	Users *mongo.Collection
 }
 
 func New(uri string) *Mongo {
