@@ -34,7 +34,10 @@ func createEngine() *gin.Engine {
 		gin.Recovery(),
 	)
 
-	router.GET("/pub", ctrl.Pub)
+	// 前端静态资源
+	ctrl.Frontend(router)
+
+	router.POST("/pub", ctrl.Pub)
 	router.POST("/sign", ctrl.Sign)
 	router.POST("/login", ctrl.Login) // need throttle, lock
 
@@ -42,8 +45,8 @@ func createEngine() *gin.Engine {
 		authorized := router.Group("/api")
 		authorized.Use(mids.AuthValidator())
 
-		authorized.GET("/", ctrl.Protected)
-		authorized.GET("/ping", ctrl.Ping)
+		authorized.POST("/", ctrl.Protected)
+		authorized.POST("/ping", ctrl.Ping)
 	}
 
 	return router

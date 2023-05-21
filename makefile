@@ -12,7 +12,6 @@ APP=./app
 
 .PHONY: dev
 dev:
-	MONGODB_URI=$(MONGODB_URI) \
 	JWT_SECRET=$(JWT_SECRET) \
   REDIS_URI=redis://default:$(REDIS_PASSWORD)@localhost:6379 \
   RABBIT_URI=amqp://$(RABBIT_USERNAME):$(RABBIT_PASSWORD)@localhost:5672 \
@@ -46,4 +45,4 @@ deploy:
 	docker stack deploy \
 		--compose-file=./docker-stack.yml \
 		--prune \
-		app_land_x_stack
+		stack_$(IMAGE)

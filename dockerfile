@@ -1,4 +1,21 @@
-FROM golang:alpine as builder
+# 构建前端资源
+FROM node:alpine as builder-frontend
+
+WORKDIR /app
+
+COPY frontend/package.json .
+COPY frontend/pnpm-lock.yaml .
+
+RUN npm config set registry https://registry.npmmirror.com
+RUN npm install -g pnpm
+RUN pnpm install
+
+COPY frontend .
+
+RUN pnpm run build
+
+
+FROM golang:alpine as builder-backend
 
 ENV GOOS=linux
 ENV GOARCH=amd64
@@ -10,18 +27,22 @@ WORKDIR /app
 
 COPY ./go.mod /app
 COPY ./go.sum /app
+
 RUN go mod download
 
 COPY . /app
+
 RUN go build -o=x ./app
 
 
-FROM scratch
+FROM scratch as release
 
 ENV GIN_MODE=release
 
 WORKDIR /app
-COPY --from=builder /app/x .
+
+COPY --from=builder-frontend /app/dist ./frontend
+COPY --from=builder-backend /app/x .
 
 EXPOSE 8080
 

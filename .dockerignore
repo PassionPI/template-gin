@@ -2,3 +2,5 @@
 .vscode
 private
 docker-stack.yml
+frontend/node_modules
+frontend/dist
