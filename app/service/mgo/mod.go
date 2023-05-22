@@ -7,22 +7,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Mongo 结构体
+// 包含了Client、Database、Collection
 type Mongo struct {
 	Client     *mongo.Client
 	Database   *mongo.Database
 	Collection *MongoCollection
 }
 
+// MongoCollection 结构体
+// 包含了所有的Collection
 type MongoCollection struct {
 	Users *mongo.Collection
 }
 
+// New 初始化Mongo
 func New(uri string) *Mongo {
 	Client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
 	}
-	MongoDatabase := Client.Database("sample_demo")
+	MongoDatabase := Client.Database("cdi")
 	MongoCollectionUser := MongoDatabase.Collection("users")
 
 	MongoCollection := &MongoCollection{

@@ -1,4 +1,4 @@
-module app_land_x
+module app.land.x
 
 go 1.20
 

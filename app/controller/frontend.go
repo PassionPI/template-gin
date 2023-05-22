@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Frontend serves the frontend
 func (ctrl *Controller) Frontend(router *gin.Engine) {
 	router.Static("/assets", "./frontend/assets")
 	router.StaticFile("/", "./frontend/index.html")

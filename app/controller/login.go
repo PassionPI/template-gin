@@ -4,18 +4,25 @@ import (
 	"context"
 	"net/http"
 
-	"app_land_x/app/model"
-	"app_land_x/pkg/req"
-	"app_land_x/pkg/resp"
-	"app_land_x/pkg/rsa256"
+	"app.land.x/app/model"
+	"app.land.x/pkg/req"
+	"app.land.x/pkg/resp"
+	"app.land.x/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
 )
 
+// Ping 测试网络通畅接口
 func (ctrl *Controller) Ping(c *gin.Context) {
 	c.String(http.StatusOK, "Hello!")
 }
 
+// Echo 测试接口，返回请求的 URL
+func (ctrl *Controller) Echo(c *gin.Context) {
+	c.String(http.StatusOK, c.Request.URL.Path)
+}
+
+// Pub 返回公钥
 func (ctrl *Controller) Pub(c *gin.Context) {
 	publicKey, err := rsa256.GetPublicKey()
 	if err != nil {
@@ -26,6 +33,7 @@ func (ctrl *Controller) Pub(c *gin.Context) {
 	resp.Ok(c, &gin.H{"publicKey": string(publicKey)})
 }
 
+// Sign 注册接口
 func (ctrl *Controller) Sign(c *gin.Context) {
 	creds, err := req.JSON[model.Credentials](c)
 
@@ -55,6 +63,7 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 	resp.Err(c, "Username already exists")
 }
 
+// Login 登录接口
 func (ctrl *Controller) Login(c *gin.Context) {
 	creds, err := req.JSON[model.Credentials](c)
 

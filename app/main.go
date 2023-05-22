@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"app_land_x/pkg/graceful"
+	"app.land.x/pkg/graceful"
 )
 
 /*

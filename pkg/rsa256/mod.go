@@ -37,10 +37,12 @@ func getPrivateKey() ([]byte, error) {
 	return readFile(defaultPrivateKeyPath)
 }
 
+// GetPublicKey 获取公钥
 func GetPublicKey() ([]byte, error) {
 	return readFile(defaultPublicKeyPath)
 }
 
+// CreateRsaPem 创建RSA公钥和私钥
 func CreateRsaPem() error {
 	publicKeyPath := defaultPublicKeyPath
 	privateKeyPath := defaultPrivateKeyPath
@@ -115,6 +117,7 @@ func CreateRsaPem() error {
 	return nil
 }
 
+// Decrypt 解密
 func Decrypt(data string) (string, error) {
 	privateKeyPEM, err := getPrivateKey()
 	if err != nil {
@@ -152,6 +155,7 @@ func Decrypt(data string) (string, error) {
 	return string(decryptedBytes), nil
 }
 
+// Encrypt 加密
 func Encrypt(data string) (string, error) {
 	publicKeyPEM, err := GetPublicKey()
 	if err != nil {

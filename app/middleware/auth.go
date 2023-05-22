@@ -11,6 +11,7 @@ import (
 const jwtBearer = "Bearer "
 const jwtBearerLen = len(jwtBearer)
 
+// AuthValidator validates the JWT token
 func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authorization := ctx.Request.Header.Get("Authorization")

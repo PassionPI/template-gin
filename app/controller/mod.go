@@ -1,13 +1,16 @@
 package controller
 
 import (
-	"app_land_x/app/service/mgo"
-	"app_land_x/pkg/resp"
-	"app_land_x/pkg/token"
+	"app.land.x/app/service/mgo"
+	"app.land.x/pkg/resp"
+	"app.land.x/pkg/token"
 
 	"github.com/gin-gonic/gin"
 )
 
+// Controller 结构体
+// 包含了所有的控制器
+// 以及整个应用所有依赖
 type Controller struct {
 	Mongo *mgo.Mongo
 	Token *token.Token

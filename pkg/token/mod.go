@@ -6,11 +6,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Claims 结构体
+// 包含了 JWT 的 payload
 type Claims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
+// Token 结构体
+// 包含了 JWT 的配置 过期时间 & 刷新时间
 type Token struct {
 	secret  []byte
 	Expire  time.Duration
@@ -18,6 +22,7 @@ type Token struct {
 	Refresh time.Duration
 }
 
+// New 创建一个 Token 实例
 func New(secret string) *Token {
 	return &Token{
 		secret:  []byte(secret),
@@ -27,6 +32,7 @@ func New(secret string) *Token {
 	}
 }
 
+// Parse 解析 JWT token
 func (auth *Token) Parse(token string) (*Claims, *jwt.Token, error) {
 	claims := &Claims{}
 	parsed, err := jwt.ParseWithClaims(
@@ -43,6 +49,7 @@ func (auth *Token) Parse(token string) (*Claims, *jwt.Token, error) {
 	return claims, parsed, err
 }
 
+// Generate 生成 JWT token
 func (auth *Token) Generate(username string) (string, error) {
 	return jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
