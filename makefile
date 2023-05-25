@@ -29,7 +29,7 @@ test:
 
 .PHONY: build
 build:
-	docker build -t app_land_x:$(VERSION) .
+	docker build -t $(IMAGE):$(VERSION) .
 
 .PHONY: deploy
 deploy:
