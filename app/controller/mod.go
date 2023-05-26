@@ -2,6 +2,7 @@ package controller
 
 import (
 	"app.land.x/app/service/mgo"
+	"app.land.x/app/service/rds"
 	"app.land.x/pkg/resp"
 	"app.land.x/pkg/token"
 
@@ -12,6 +13,7 @@ import (
 // 包含了所有的控制器
 // 以及整个应用所有依赖
 type Controller struct {
+	Rds   *rds.Rds
 	Mongo *mgo.Mongo
 	Token *token.Token
 }
