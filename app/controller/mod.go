@@ -2,6 +2,7 @@ package controller
 
 import (
 	"app_land_x/app/service/mgo"
+	"app_land_x/app/service/rds"
 	"app_land_x/pkg/resp"
 	"app_land_x/pkg/token"
 
@@ -9,6 +10,7 @@ import (
 )
 
 type Controller struct {
+	Rds   *rds.Rds
 	Mongo *mgo.Mongo
 	Token *token.Token
 }

@@ -6,6 +6,7 @@ import (
 	"app_land_x/app/controller"
 	"app_land_x/app/middleware"
 	"app_land_x/app/service/mgo"
+	"app_land_x/app/service/rds"
 	"app_land_x/pkg/rsa256"
 	"app_land_x/pkg/token"
 
@@ -13,10 +14,12 @@ import (
 )
 
 func createController() *controller.Controller {
+	redisURI := os.Getenv("REDIS_URI")   // "redis://localhost:6379/0"
 	mongoURI := os.Getenv("MONGODB_URI") // "mongodb://localhost:27017"
 	jwtSecret := os.Getenv("JWT_SECRET") // "Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ"
 
 	return &controller.Controller{
+		Rds:   rds.New(redisURI),
 		Mongo: mgo.New(mongoURI),
 		Token: token.New(jwtSecret),
 	}
