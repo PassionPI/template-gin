@@ -1,30 +1,16 @@
 package controller
 
-import (
-	"app.land.x/app/service/mgo"
-	"app.land.x/app/service/rds"
-	"app.land.x/pkg/resp"
-	"app.land.x/pkg/token"
-
-	"github.com/gin-gonic/gin"
-)
+import "app.land.x/app/core"
 
 // Controller 结构体
 // 包含了所有的控制器
-// 以及整个应用所有依赖
 type Controller struct {
-	Rds   *rds.Rds
-	Mongo *mgo.Mongo
-	Token *token.Token
+	core *core.Core
 }
 
-func (ctrl *Controller) responseWithJwtToken(c *gin.Context, username string) {
-	token, err := ctrl.Token.Generate(username)
-
-	if err != nil {
-		resp.Err(c, "Failed to sign the token")
-		return
+// New 创建一个新的中间件
+func New(core *core.Core) *Controller {
+	return &Controller{
+		core,
 	}
-
-	resp.Ok(c, &gin.H{"token": token})
 }

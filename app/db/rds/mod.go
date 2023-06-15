@@ -21,6 +21,11 @@ func New(uri string) *Rds {
 
 	Client := redis.NewClient(opt)
 
+	_, err = Client.Ping(context.TODO()).Result()
+	if err != nil {
+		panic(fmt.Sprintf("无法连接到 Redis: %v", err))
+	}
+
 	return &Rds{
 		Client,
 	}

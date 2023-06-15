@@ -10,6 +10,7 @@ import (
 	"app.land.x/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Ping 测试网络通畅接口
@@ -49,13 +50,18 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 		return
 	}
 
-	_, err = ctrl.Mongo.FindUserByUsername(username)
+	err = ctrl.core.Mongo.Collection.Users.FindOne(
+		context.TODO(),
+		bson.M{
+			"username": username,
+		},
+	).Decode(&model.Credentials{})
 	if err != nil {
 		userSignUp := model.Credentials{
 			Username: username,
 			Password: password,
 		}
-		ctrl.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+		ctrl.core.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
 
 		ctrl.responseWithJwtToken(c, username)
 		return
@@ -81,7 +87,7 @@ func (ctrl *Controller) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := ctrl.Mongo.FindUserByUsername(username)
+	user, err := ctrl.core.Mongo.FindUserByUsername(username)
 
 	if err != nil {
 		resp.Err(c, "No account of this username found")

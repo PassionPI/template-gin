@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"app.land.x/app/controller"
+	"app.land.x/app/core"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,13 +9,13 @@ import (
 // Middleware 结构体
 // 包含了所有的中间件
 type Middleware struct {
-	ctrl *controller.Controller
+	core *core.Core
 }
 
 // New 创建一个新的中间件
-func New(ctrl *controller.Controller) *Middleware {
+func New(core *core.Core) *Middleware {
 	return &Middleware{
-		ctrl,
+		core,
 	}
 }
 

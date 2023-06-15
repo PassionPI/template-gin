@@ -1,48 +1,49 @@
 package main
 
 import (
-	"os"
+	"time"
 
 	"app.land.x/app/controller"
+	"app.land.x/app/core"
 	"app.land.x/app/middleware"
-	"app.land.x/app/service/mgo"
-	"app.land.x/app/service/rds"
 	"app.land.x/pkg/rsa256"
-	"app.land.x/pkg/token"
 
 	"github.com/gin-gonic/gin"
 )
 
-func createController() *controller.Controller {
-	redisURI := os.Getenv("REDIS_URI")   // "redis://localhost:6379/0"
-	mongoURI := os.Getenv("MONGODB_URI") // "mongodb://localhost:27017"
-	jwtSecret := os.Getenv("JWT_SECRET") // "Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ"
-
-	return &controller.Controller{
-		Rds:   rds.New(redisURI),
-		Mongo: mgo.New(mongoURI),
-		Token: token.New(jwtSecret),
-	}
+func initialize() {
+	rsa256.CreateRsaPem()
 }
 
 func createEngine() *gin.Engine {
-	rsa256.CreateRsaPem()
+	initialize()
 
-	ctrl := createController()
-	mids := middleware.New(ctrl)
+	core := core.New()
+	ctrl := controller.New(core)
+	mids := middleware.New(core)
 
 	router := gin.New()
 	router.Use(
 		gin.Logger(),
 		gin.Recovery(),
+		mids.RateLimiter(30, time.Minute),
 	)
 
 	// 前端静态资源
-	ctrl.Frontend(router)
+	{
+		// index := "./frontend/index.html"
+		// router.Static("/assets", "./frontend/assets")
+		// router.StaticFile("/", index)
+		// router.StaticFile("/favicon.svg", "./frontend/favicon.svg")
+		// router.NoRoute(func(c *gin.Context) { c.File(index) })
+	}
 
-	router.POST("/pub", ctrl.Pub)
-	router.POST("/sign", ctrl.Sign)
-	router.POST("/login", ctrl.Login) // need throttle, lock
+	{
+		pub := router.Group("/api")
+		pub.POST("/pub", ctrl.Pub)
+		pub.POST("/sign", ctrl.Sign)
+		pub.POST("/login", ctrl.Login) // need throttle, lock
+	}
 
 	{
 		api := router.Group("/api")
@@ -127,13 +128,14 @@ func createEngine() *gin.Engine {
 			gin.BasicAuth(gin.Accounts{"miss": "ballad"}),
 		)
 
-		{
-			webhook := open.Group("/webhook")
+	}
 
-			{
-				github := webhook.Group("/github")
-				github.POST("/pr", ctrl.WebhookGithubPR)
-			}
+	{
+		webhook := router.Group("/webhook")
+
+		{
+			github := webhook.Group("/github")
+			github.POST("/pr", ctrl.WebhookGithubPR)
 		}
 	}
 

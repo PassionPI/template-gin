@@ -37,7 +37,7 @@ func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 		}
 
 		// Parse the JWT token and verify the signature
-		claims, token, err := mid.ctrl.Token.Parse(authorization[jwtBearerLen:])
+		claims, token, err := mid.core.Token.Parse(authorization[jwtBearerLen:])
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
@@ -66,8 +66,8 @@ func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 			return
 		}
 
-		if claims.ExpiresAt.Time.Sub(time.Now()) < mid.ctrl.Token.Refresh {
-			newToken, _ := mid.ctrl.Token.Generate(claims.Username)
+		if claims.ExpiresAt.Time.Sub(time.Now()) < mid.core.Token.Refresh {
+			newToken, _ := mid.core.Token.Generate(claims.Username)
 			ctx.Header("Authorization", newToken)
 		}
 
