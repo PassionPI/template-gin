@@ -3,10 +3,10 @@ package core
 import (
 	"os"
 
+	"app.land.x/app/api/mgo"
+	"app.land.x/app/api/rds"
 	"app.land.x/app/common"
-	"app.land.x/app/db/mgo"
-	"app.land.x/app/db/rds"
-	"app.land.x/app/job"
+	"app.land.x/app/tasks"
 	"app.land.x/pkg/token"
 )
 
@@ -18,7 +18,7 @@ type Core struct {
 	Mongo     *mgo.Mongo
 	Token     *token.Token
 	Common    *common.Common
-	Scheduler *job.Job
+	Scheduler *tasks.Tasks
 }
 
 func New() *Core {
@@ -30,7 +30,7 @@ func New() *Core {
 	Mongo := mgo.New(mongoURI)
 	Token := token.New(jwtSecret)
 	Common := common.New()
-	Scheduler := job.New(Rds.Client)
+	Scheduler := tasks.New(Rds.Client)
 
 	return &Core{
 		Rds:       Rds,
