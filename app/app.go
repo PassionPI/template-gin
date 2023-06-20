@@ -6,14 +6,9 @@ import (
 	"app.land.x/app/controller"
 	"app.land.x/app/core"
 	"app.land.x/app/middleware"
-	"app.land.x/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
 )
-
-func initialize() {
-	rsa256.CreateRsaPem()
-}
 
 func createEngine() *gin.Engine {
 	initialize()

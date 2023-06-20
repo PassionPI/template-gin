@@ -12,14 +12,20 @@ import (
 	"os"
 )
 
+const defaultValidKey = "123abc"
+
 const privateKey = "private_key.pem"
 const publicKey = "public_key.pem"
-const basePath = "./private/pem"
 
-const defaultPrivateKeyPath = basePath + "/" + privateKey
-const defaultPublicKeyPath = basePath + "/" + publicKey
+var basePath = "./private/pem"
 
-const defaultValidKey = "123abc"
+func getPrivateKeyPath() string {
+	return basePath + "/" + privateKey
+}
+
+func getPublicKeyPath() string {
+	return basePath + "/" + publicKey
+}
 
 func readFile(path string) ([]byte, error) {
 	file, err := os.Open(path)
@@ -34,18 +40,23 @@ func readFile(path string) ([]byte, error) {
 }
 
 func getPrivateKey() ([]byte, error) {
-	return readFile(defaultPrivateKeyPath)
+	return readFile(getPrivateKeyPath())
+}
+
+// SetBasePath 设置私钥和公钥的存放路径 默认为 ./private/pem
+func SetBasePath(path string) {
+	basePath = path
 }
 
 // GetPublicKey 获取公钥
 func GetPublicKey() ([]byte, error) {
-	return readFile(defaultPublicKeyPath)
+	return readFile(getPublicKeyPath())
 }
 
 // CreateRsaPem 创建RSA公钥和私钥
 func CreateRsaPem() error {
-	publicKeyPath := defaultPublicKeyPath
-	privateKeyPath := defaultPrivateKeyPath
+	publicKeyPath := getPublicKeyPath()
+	privateKeyPath := getPrivateKeyPath()
 
 	encode, err := Encrypt(defaultValidKey)
 	decode, err := Decrypt(encode)
