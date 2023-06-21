@@ -1,4 +1,4 @@
-package core
+package dependency
 
 import (
 	"os"
@@ -6,20 +6,21 @@ import (
 	"app.land.x/app/api/mgo"
 	"app.land.x/app/api/rds"
 	"app.land.x/app/common"
-	"app.land.x/app/core/dependency"
-	"app.land.x/app/core/remote"
 	"app.land.x/app/tasks"
 	"app.land.x/pkg/token"
 )
 
-// Core 结构体
-// 整个应用核心功能函数
-type Core struct {
-	Dep    *dependency.Dependency
-	Remote *remote.Remote
+// Dependency 结构体
+// 整个应用所有依赖
+type Dependency struct {
+	Rds       *rds.Rds
+	Mongo     *mgo.Mongo
+	Token     *token.Token
+	Common    *common.Common
+	Scheduler *tasks.Tasks
 }
 
-func createDependency() *dependency.Dependency {
+func New() *Dependency {
 	redisURI := os.Getenv("REDIS_URI")   // "redis://localhost:6379/0"
 	mongoURI := os.Getenv("MONGODB_URI") // "mongodb://localhost:27017"
 	jwtSecret := os.Getenv("JWT_SECRET") // "Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ"
@@ -30,22 +31,11 @@ func createDependency() *dependency.Dependency {
 	Common := common.New()
 	Scheduler := tasks.New(Rds.Client)
 
-	return &dependency.Dependency{
+	return &Dependency{
 		Rds:       Rds,
 		Mongo:     Mongo,
 		Token:     Token,
 		Common:    Common,
 		Scheduler: Scheduler,
-	}
-}
-
-func New() *Core {
-	Dep := createDependency()
-
-	Remote := remote.New(Dep)
-
-	return &Core{
-		Dep:    Dep,
-		Remote: Remote,
 	}
 }

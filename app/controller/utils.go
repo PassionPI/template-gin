@@ -1,17 +1,17 @@
 package controller
 
 import (
-	"app.land.x/pkg/resp"
+	"app.land.x/pkg/qp"
 	"github.com/gin-gonic/gin"
 )
 
 func (ctrl *Controller) responseWithJwtToken(c *gin.Context, username string) {
-	token, err := ctrl.core.Token.Generate(username)
+	token, err := ctrl.core.Dep.Token.Generate(username)
 
 	if err != nil {
-		resp.Err(c, "Failed to sign the token")
+		qp.Err(c, "Failed to sign the token")
 		return
 	}
 
-	resp.Ok(c, &gin.H{"token": token})
+	qp.Ok(c, &gin.H{"token": token})
 }

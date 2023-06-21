@@ -5,8 +5,7 @@ import (
 	"net/http"
 
 	"app.land.x/app/model"
-	"app.land.x/pkg/req"
-	"app.land.x/pkg/resp"
+	"app.land.x/pkg/qp"
 	"app.land.x/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
@@ -27,16 +26,16 @@ func (ctrl *Controller) Echo(c *gin.Context) {
 func (ctrl *Controller) Pub(c *gin.Context) {
 	publicKey, err := rsa256.GetPublicKey()
 	if err != nil {
-		resp.Err(c, "Failed to get public key")
+		qp.Err(c, "Failed to get public key")
 		return
 	}
 
-	resp.Ok(c, &gin.H{"publicKey": string(publicKey)})
+	qp.Ok(c, &gin.H{"publicKey": string(publicKey)})
 }
 
 // Sign 注册接口
 func (ctrl *Controller) Sign(c *gin.Context) {
-	creds, err := req.JSON[model.Credentials](c)
+	creds, err := qp.JSON[model.Credentials](c)
 
 	if err != nil {
 		return
@@ -46,11 +45,11 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 	password, err := rsa256.Decrypt(creds.Password)
 
 	if err != nil {
-		resp.Err(c, "Invalid password")
+		qp.Err(c, "Invalid password")
 		return
 	}
 
-	err = ctrl.core.Mongo.Collection.Users.FindOne(
+	err = ctrl.core.Dep.Mongo.Collection.Users.FindOne(
 		context.TODO(),
 		bson.M{
 			"username": username,
@@ -61,17 +60,17 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 			Username: username,
 			Password: password,
 		}
-		ctrl.core.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+		ctrl.core.Dep.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
 
 		ctrl.responseWithJwtToken(c, username)
 		return
 	}
-	resp.Err(c, "Username already exists")
+	qp.Err(c, "Username already exists")
 }
 
 // Login 登录接口
 func (ctrl *Controller) Login(c *gin.Context) {
-	creds, err := req.JSON[model.Credentials](c)
+	creds, err := qp.JSON[model.Credentials](c)
 
 	if err != nil {
 		return
@@ -83,19 +82,19 @@ func (ctrl *Controller) Login(c *gin.Context) {
 	message := "Invalid password"
 
 	if err != nil {
-		resp.Err(c, message)
+		qp.Err(c, message)
 		return
 	}
 
-	user, err := ctrl.core.Mongo.FindUserByUsername(username)
+	user, err := ctrl.core.Dep.Mongo.FindUserByUsername(username)
 
 	if err != nil {
-		resp.Err(c, "No account of this username found")
+		qp.Err(c, "No account of this username found")
 		return
 	}
 
 	if password != user.Password {
-		resp.Err(c, message)
+		qp.Err(c, message)
 		return
 	}
 

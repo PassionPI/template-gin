@@ -26,6 +26,10 @@ app/controller - 路由控制器、用于处理副作用
 
 app/core - 应用核心依赖、方法
 
+app/core/../.. - 应用核心方法
+
+app/core/.. - 应用核心方法 de 组合
+
 app/messages - 消息队列
 
 app/middleware - 路由中间件

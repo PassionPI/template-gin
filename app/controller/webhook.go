@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"app.land.x/app/model"
-	"app.land.x/pkg/req"
+	"app.land.x/pkg/qp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ import (
 //
 // 主要接收Merge Preview & Merge Master Pull Request事件
 func (ctrl *Controller) WebhookGithubPR(c *gin.Context) {
-	payload, err := req.JSON[model.PullRequestPayload](c)
+	payload, err := qp.JSON[model.PullRequestPayload](c)
 
 	if err != nil {
 		c.String(http.StatusOK, "OK")
