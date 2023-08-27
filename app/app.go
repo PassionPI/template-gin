@@ -26,10 +26,13 @@ func createEngine() *gin.Engine {
 
 	// 前端静态资源
 	{
-		// index := "./frontend/index.html"
-		// router.Static("/assets", "./frontend/assets")
-		// router.StaticFile("/", index)
-		// router.StaticFile("/favicon.svg", "./frontend/favicon.svg")
+		// base := "./frontend"
+		// // icon := "/favicon.ico"
+		// asset := "/assets"
+		// index := base + "/index.html"
+		// router.Static(asset, base+asset)
+		// // router.StaticFile("/", index)
+		// // router.StaticFile(icon, base+icon)
 		// router.NoRoute(func(c *gin.Context) { c.File(index) })
 	}
 
@@ -43,7 +46,6 @@ func createEngine() *gin.Engine {
 	{
 		api := router.Group("/api")
 		api.Use(
-			mids.Empty(),
 			mids.AuthValidator(),
 		)
 

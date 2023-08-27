@@ -1,3 +1,13 @@
 {
-  "cSpell.words": ["amqp", "bson", "cpus", "gocron", "gonic", "rabbitmq"]
+  "cSpell.words": [
+    "amqp",
+    "bson",
+    "cpus",
+    "gocron",
+    "gonic",
+    "pgdialect",
+    "pgdriver",
+    "rabbitmq",
+    "uptrace"
+  ]
 }

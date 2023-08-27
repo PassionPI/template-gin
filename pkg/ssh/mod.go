@@ -30,7 +30,7 @@ func NewClient(host, username, password string) (*Client, error) {
 		Auth:            []ssh.AuthMethod{ssh.Password(password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	client, err := ssh.Dial("tcp", host+":22", config)
+	client, err := ssh.Dial("tcp", host, config)
 	return &Client{
 		host:     host,
 		username: username,

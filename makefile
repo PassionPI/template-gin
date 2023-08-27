@@ -1,10 +1,15 @@
 IMAGE?=app_land_x
 VERSION?=0
 
-JWT_SECRET?=Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ
+JWT_SECRET?=JWT_SECRET
+
 REDIS_PASSWORD?=redis
+
 DB_USERNAME?=mongo
 DB_PASSWORD?=mongo
+
+RABBIT_USERNAME?=rabbit
+RABBIT_PASSWORD?=rabbit
 
 APP=./app
 
@@ -22,11 +27,11 @@ fmt:
 
 .PHONY: test
 test:
-	go test -v -cover ./ -count=1
+	go test -v -cover -count=1 ./...
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE):$(VERSION) .
+	docker build --build-arg APP_DIR=./app -t $(IMAGE):$(VERSION) .
 
 .PHONY: deploy
 deploy:

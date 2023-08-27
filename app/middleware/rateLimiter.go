@@ -10,7 +10,7 @@ import (
 )
 
 // RateLimiter is a middleware that limits the number of requests per client.
-func (m *Middleware) RateLimiter(maxRequests int, duration time.Duration) gin.HandlerFunc {
+func (m *Middleware) RateLimiter(maxRequests int64, duration time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		client := m.core.Dep.Rds.Client
 		ctx := c.Request.Context()
@@ -26,7 +26,7 @@ func (m *Middleware) RateLimiter(maxRequests int, duration time.Duration) gin.Ha
 			client.Expire(ctx, key, duration)
 		}
 
-		if count > int64(maxRequests) {
+		if count > maxRequests {
 			// 	"code": http.StatusTooManyRequests,
 			qp.Err(c, "请求过多，请稍后重试")
 			c.Abort()

@@ -4,8 +4,8 @@ import (
 	"app.land.x/app/core/dependency"
 )
 
-// Middleware 结构体
-// 包含了所有的中间件
+// Remote 结构体
+// 包含了所有的 Remote机器 操作
 type Remote struct {
 	dep *dependency.Dependency
 }
@@ -15,9 +15,4 @@ func New(dep *dependency.Dependency) *Remote {
 	return &Remote{
 		dep,
 	}
-}
-
-func (r *Remote) RunCommand() string {
-	// return r.dep.Common.GetRemoteIP()
-	return "hello"
 }
