@@ -1,7 +1,7 @@
 package user
 
 import (
-	"app.land.x/app/core/dependency"
+	"app.ai_painter/app/core/dependency"
 )
 
 // Middleware 结构体

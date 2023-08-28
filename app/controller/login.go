@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"app.land.x/app/model"
-	"app.land.x/pkg/qp"
-	"app.land.x/pkg/rsa256"
+	"app.ai_painter/app/model"
+	"app.ai_painter/pkg/qp"
+	"app.ai_painter/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -60,7 +60,12 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 			Username: username,
 			Password: password,
 		}
-		ctrl.core.Dep.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+		_, err := ctrl.core.Dep.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+
+		if err != nil {
+			qp.Err(c, "Failed to insert user")
+			return
+		}
 
 		ctrl.responseWithJwtToken(c, username)
 		return

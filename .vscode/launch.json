@@ -11,6 +11,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/app",
       "env": {
+        "IMAGE": "ai_painter",
         "JWT_SECRET": "JWT_SECRET",
         "REDIS_URI": "redis://localhost:6379",
         "MONGODB_URI": "mongodb://localhost:27017"

@@ -3,7 +3,7 @@ package token_test
 import (
 	"testing"
 
-	"app.land.x/pkg/token"
+	"app.ai_painter/pkg/token"
 )
 
 const secret = "secret"

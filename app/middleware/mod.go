@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"app.land.x/app/core"
+	"app.ai_painter/app/core"
 
 	"github.com/gin-gonic/gin"
 )

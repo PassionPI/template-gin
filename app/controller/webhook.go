@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"app.land.x/app/model"
-	"app.land.x/pkg/qp"
+	"app.ai_painter/app/model"
+	"app.ai_painter/pkg/qp"
 
 	"github.com/gin-gonic/gin"
 )

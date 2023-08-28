@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"app.land.x/pkg/qp"
+	"app.ai_painter/pkg/qp"
 	"github.com/gin-gonic/gin"
 )
 

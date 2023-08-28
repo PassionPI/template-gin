@@ -1,19 +1,20 @@
-# # 构建前端资源
-# FROM node:alpine as builder-frontend
+# 构建前端资源
+FROM node:alpine as builder-frontend
 
-# WORKDIR /app
+WORKDIR /app
 
-# COPY frontend/package.json .
-# COPY frontend/pnpm-lock.yaml .
+COPY frontend/package.json .
+COPY frontend/pnpm-lock.yaml .
 
-# RUN npm config set registry https://registry.npmmirror.com
-# RUN npm install -g pnpm
-# RUN pnpm install
+RUN npm config set registry https://registry.npmmirror.com
+RUN npm install -g pnpm
+RUN pnpm install
 
-# COPY frontend .
+COPY frontend .
 
-# RUN pnpm run build
+RUN npm run build
 
+# 构建后端资源
 FROM golang:alpine as builder
 
 ARG APP_DIR=./app
@@ -34,7 +35,6 @@ RUN go mod download
 COPY . /app
 
 RUN go build -o=x ${APP_DIR}
-# RUN go build -o=x ./app
 
 
 FROM scratch as release
@@ -43,8 +43,8 @@ ENV GIN_MODE=release
 
 WORKDIR /app
 
-COPY --from=builder-frontend /app/dist ./frontend
 COPY --from=builder /app/x .
+COPY --from=builder-frontend /app/dist ./frontend
 
 EXPOSE 8080
 

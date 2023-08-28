@@ -1,4 +1,4 @@
-IMAGE?=app_land_x
+IMAGE?=ai_painter
 VERSION?=0
 
 JWT_SECRET?=JWT_SECRET
@@ -15,9 +15,10 @@ APP=./app
 
 .PHONY: dev
 dev:
+	IMAGE=$(IMAGE) \
 	JWT_SECRET=$(JWT_SECRET) \
-	REDIS_URI=redis://localhost:6379 \
-  MONGODB_URI=mongodb://localhost:27017 \
+	REDIS_URI=redis://default:${REDIS_PASSWORD}@localhost:6379 \
+  MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017 \
 	go run $(APP)
 
 .PHONY: fmt
@@ -45,4 +46,4 @@ deploy:
 	docker stack deploy \
 		--compose-file=./docker-stack.yml \
 		--prune \
-		stack_$(IMAGE)
+		$(IMAGE)

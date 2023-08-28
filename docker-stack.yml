@@ -11,6 +11,7 @@ services:
       - application:/app/private
     environment:
       - GIN_MODE=release
+      - IMAGE=${IMAGE}
       - JWT_SECRET=${JWT_SECRET}
       - REDIS_URI=redis://default:${REDIS_PASSWORD}@mid-redis:6379
       # - RABBIT_URI=amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@mid-rabbit:5672

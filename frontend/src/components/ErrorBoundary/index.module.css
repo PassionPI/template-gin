@@ -1,0 +1,12 @@
+.err {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--base-error-bg);
+  height: 100%;
+}
+
+.icon {
+  color: var(--base-error-color);
+  margin-right: var(--base-gap-mini);
+}

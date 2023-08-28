@@ -1,6 +1,6 @@
 package controller
 
-import "app.land.x/app/core"
+import "app.ai_painter/app/core"
 
 // Controller 结构体
 // 包含了所有的控制器
