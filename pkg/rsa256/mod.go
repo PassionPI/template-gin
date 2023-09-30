@@ -17,7 +17,7 @@ const defaultValidKey = "123abc"
 const privateKey = "private_key.pem"
 const publicKey = "public_key.pem"
 
-var basePath = "./private/pem"
+var basePath = "./pem"
 
 func getPrivateKeyPath() string {
 	return basePath + "/" + privateKey
@@ -43,7 +43,7 @@ func getPrivateKey() ([]byte, error) {
 	return readFile(getPrivateKeyPath())
 }
 
-// SetBasePath 设置私钥和公钥的存放路径 默认为 ./private/pem
+// SetBasePath 设置私钥和公钥的存放路径 默认为 ./pem
 func SetBasePath(path string) {
 	basePath = path
 }

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"app.ai_painter/app/model"
-	"app.ai_painter/pkg/qp"
+	"app.ai_painter/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ import (
 //
 // 主要接收Merge Preview & Merge Master Pull Request事件
 func (ctrl *Controller) WebhookGithubPR(c *gin.Context) {
-	payload, err := qp.JSON[model.PullRequestPayload](c)
+	payload, err := util.JSON[model.PullRequestPayload](c)
 
 	if err != nil {
 		c.String(http.StatusOK, "OK")

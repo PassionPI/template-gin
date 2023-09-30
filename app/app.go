@@ -11,9 +11,10 @@ import (
 )
 
 func createEngine() *gin.Engine {
-	initialize()
-
 	core := core.New()
+
+	initialize(core.Dep.Env.VolumePath)
+
 	ctrl := controller.New(core)
 	mids := middleware.New(core)
 
@@ -34,6 +35,12 @@ func createEngine() *gin.Engine {
 		router.StaticFile(icon, base+icon)
 		router.Static(asset, base+asset)
 		router.NoRoute(func(c *gin.Context) { c.File(index) })
+	}
+
+	// 上传静态资源
+	{
+		upload := "/upload"
+		router.Static(upload, core.Dep.Env.VolumePath+upload)
 	}
 
 	{
@@ -59,21 +66,23 @@ func createEngine() *gin.Engine {
 	}
 
 	{
-		open := router.Group("/open")
-		open.Use(
-			gin.BasicAuth(gin.Accounts{"miss": "ballad"}),
-		)
+		// open := router.Group("/open")
+		// open.Use(
+		// 	gin.BasicAuth(gin.Accounts{"miss": "ballad"}),
+		// )
 
 	}
 
 	{
-		webhook := router.Group("/webhook")
+		// webhook := router.Group("/webhook")
 
-		{
-			github := webhook.Group("/github")
-			github.POST("/pr", ctrl.WebhookGithubPR)
-		}
+		// {
+		// 	github := webhook.Group("/github")
+		// 	github.POST("/pr", ctrl.WebhookGithubPR)
+		// }
 	}
 
 	return router
 }
+
+// http://xxxxxxxx http://xxxxxxxx a, b, c --ar 3:4 --xx 11

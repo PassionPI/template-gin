@@ -1,4 +1,4 @@
-package qp
+package util
 
 import (
 	"fmt"

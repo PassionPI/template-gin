@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "tsc && eslint ./src --ext .js,.jsx,.cjs,.mjs,.ts,.tsx --fix",
+    "test": "vitest",
     "pretty": "prettier --write ./src",
     "preview": "vite preview",
     "pre-commit": "npm run lint && npm run pretty",
@@ -23,6 +24,9 @@
     "react-router-dom": "^6.15.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.3",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.5.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -38,8 +42,10 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "husky": "^8.0.3",
+    "jsdom": "^22.1.0",
     "prettier": "^3.0.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vitest": "^0.34.5"
   }
 }

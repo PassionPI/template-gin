@@ -1,12 +1,11 @@
 package controller
 
 import (
-	"context"
 	"net/http"
 
 	"app.ai_painter/app/model"
-	"app.ai_painter/pkg/qp"
 	"app.ai_painter/pkg/rsa256"
+	"app.ai_painter/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -26,16 +25,17 @@ func (ctrl *Controller) Echo(c *gin.Context) {
 func (ctrl *Controller) Pub(c *gin.Context) {
 	publicKey, err := rsa256.GetPublicKey()
 	if err != nil {
-		qp.Err(c, "Failed to get public key")
+		util.Err(c, "Failed to get public key")
 		return
 	}
 
-	qp.Ok(c, &gin.H{"publicKey": string(publicKey)})
+	util.Ok(c, &gin.H{"publicKey": string(publicKey)})
 }
 
 // Sign 注册接口
 func (ctrl *Controller) Sign(c *gin.Context) {
-	creds, err := qp.JSON[model.Credentials](c)
+	creds, err := util.JSON[model.Credentials](c)
+	ctx := c.Request.Context()
 
 	if err != nil {
 		return
@@ -45,12 +45,12 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 	password, err := rsa256.Decrypt(creds.Password)
 
 	if err != nil {
-		qp.Err(c, "Invalid password")
+		util.Err(c, "Invalid password")
 		return
 	}
 
 	err = ctrl.core.Dep.Mongo.Collection.Users.FindOne(
-		context.TODO(),
+		ctx,
 		bson.M{
 			"username": username,
 		},
@@ -60,22 +60,23 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 			Username: username,
 			Password: password,
 		}
-		_, err := ctrl.core.Dep.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+		_, err := ctrl.core.Dep.Mongo.Collection.Users.InsertOne(ctx, userSignUp)
 
 		if err != nil {
-			qp.Err(c, "Failed to insert user")
+			util.Err(c, "Failed to insert user")
 			return
 		}
 
 		ctrl.responseWithJwtToken(c, username)
 		return
 	}
-	qp.Err(c, "Username already exists")
+	util.Err(c, "Username already exists")
 }
 
 // Login 登录接口
 func (ctrl *Controller) Login(c *gin.Context) {
-	creds, err := qp.JSON[model.Credentials](c)
+	creds, err := util.JSON[model.Credentials](c)
+	ctx := c.Request.Context()
 
 	if err != nil {
 		return
@@ -87,19 +88,19 @@ func (ctrl *Controller) Login(c *gin.Context) {
 	message := "Invalid password"
 
 	if err != nil {
-		qp.Err(c, message)
+		util.Err(c, message)
 		return
 	}
 
-	user, err := ctrl.core.Dep.Mongo.FindUserByUsername(username)
+	user, err := ctrl.core.Dep.Mongo.FindUserByUsername(ctx, username)
 
 	if err != nil {
-		qp.Err(c, "No account of this username found")
+		util.Err(c, "No account of this username found")
 		return
 	}
 
 	if password != user.Password {
-		qp.Err(c, message)
+		util.Err(c, message)
 		return
 	}
 

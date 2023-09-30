@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"app.ai_painter/pkg/qp"
+	"app.ai_painter/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +28,7 @@ func (m *Middleware) RateLimiter(maxRequests int64, duration time.Duration) gin.
 
 		if count > maxRequests {
 			// 	"code": http.StatusTooManyRequests,
-			qp.Err(c, "请求过多，请稍后重试")
+			util.Err(c, "请求过多，请稍后重试")
 			c.Abort()
 			return
 		}

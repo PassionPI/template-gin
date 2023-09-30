@@ -1,6 +1,5 @@
-import LocationSub from "@/components/LocationSub";
 import Navigator from "@/components/Navigator";
-import { getToken, invokePubKey } from "@/services/login";
+import { invokePubKey, isAuthorization } from "@/services/login";
 import { TreeToRoute } from "@/utils/staticRoute";
 import { suspense } from "@/utils/suspense";
 import { Outlet, createBrowserRouter, redirect } from "react-router-dom";
@@ -22,21 +21,27 @@ export const AppRouter = createBrowserRouter([
     path: "/",
     element: (
       <>
-        <LocationSub />
         <Navigator />
         <Outlet />
       </>
     ),
+    loader: async () => {
+      invokePubKey();
+      const { pathname } = location;
+      const authorization = await isAuthorization();
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("authorization", authorization);
+      if (authorization) {
+        return null;
+      }
+      if (pathname === ROUTE.login.__ || pathname === ROUTE.sign.__) {
+        return null;
+      }
+      return redirect(ROUTE.login.__);
+    },
     children: [
       {
         path: "/",
-        loader: async () => {
-          invokePubKey();
-          if (getToken()) {
-            return redirect(ROUTE.home.__);
-          }
-          return null;
-        },
         children: [
           {
             path: ROUTE.login.__,
@@ -54,10 +59,6 @@ export const AppRouter = createBrowserRouter([
           {
             index: true,
             loader: async () => {
-              const token = getToken();
-              if (!token) {
-                return redirect(ROUTE.login.__);
-              }
               return redirect(ROUTE.home.__);
             },
           },

@@ -10,10 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initialize() {
-	base := "./private"
-	basePem := base + "/pem"
-	baseLog := base + "/log"
+func initialize(VolumePath string) {
+	basePem := VolumePath + "/pem"
+	baseLog := VolumePath + "/log"
 	{
 		rsa256.SetBasePath(basePem)
 		rsa256.CreateRsaPem()

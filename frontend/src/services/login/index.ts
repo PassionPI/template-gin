@@ -8,9 +8,23 @@ export const getPubKey = () => localStorage.getItem(publicKey);
 
 export const getToken = () => localStorage.getItem(token);
 
+const delToken = () => localStorage.setItem(token, "");
+
 export const logout = () => localStorage.removeItem(token);
 
 export const isLogin = () => localStorage.getItem(token) != null;
+
+export const isAuthorization = async () => {
+  const [err] = await request({
+    method: "post",
+    url: "/api/ping",
+  });
+  if (err != null) {
+    delToken();
+    return false;
+  }
+  return true;
+};
 
 export const invokePubKey = async () => {
   if (getPubKey()) {

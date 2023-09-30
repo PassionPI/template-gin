@@ -9,9 +9,9 @@ import (
 )
 
 // FindUserByUsername 根据用户名查找用户
-func (mongo *Mongo) FindUserByUsername(username string) (credentials model.Credentials, err error) {
+func (mongo *Mongo) FindUserByUsername(ctx context.Context, username string) (credentials model.Credentials, err error) {
 	err = mongo.Collection.Users.FindOne(
-		context.TODO(),
+		ctx,
 		bson.M{
 			"username": username,
 		},
