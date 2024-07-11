@@ -10,8 +10,7 @@
     "test": "vitest",
     "pretty": "prettier --write ./src",
     "preview": "vite preview",
-    "pre-commit": "npm run lint && npm run pretty",
-    "prepare": "husky install"
+    "pre-commit": "npm run lint && npm run pretty"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.5",
@@ -45,7 +44,7 @@
     "jsdom": "^22.1.0",
     "prettier": "^3.0.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "vite": "^5",
     "vitest": "^0.34.5"
   }
 }

@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"app.ai_painter/pkg/util"
+	"app_ink/pkg/util"
+
 	"github.com/gin-gonic/gin"
 )
 

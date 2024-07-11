@@ -1,8 +1,8 @@
 package core
 
 import (
-	"app.ai_painter/app/core/dependency"
-	"app.ai_painter/app/core/user"
+	"app_ink/app/core/dependency"
+	"app_ink/app/core/user"
 )
 
 // Core 结构体

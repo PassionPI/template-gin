@@ -1,4 +1,5 @@
-IMAGE?=ai_painter
+IMAGE_HOST?=docker.io
+IMAGE?=app_ink
 VERSION?=0
 
 JWT_SECRET?=JWT_SECRET
@@ -17,8 +18,8 @@ APP=./app
 dev:
 	IMAGE=$(IMAGE) \
 	JWT_SECRET=$(JWT_SECRET) \
-	REDIS_URI=redis://default:${REDIS_PASSWORD}@localhost:6379 \
-  MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017 \
+	REDIS_URI=redis://localhost:6379 \
+  MONGODB_URI=mongodb://localhost:27017 \
 	go run $(APP)
 
 .PHONY: fmt
@@ -30,9 +31,18 @@ fmt:
 test:
 	go test -v -cover -count=1 ./...
 
+.PHONY: lint
+lint:
+	make fmt
+	make test
+
 .PHONY: build
 build:
 	docker build --build-arg APP_DIR=./app -t $(IMAGE):$(VERSION) .
+	
+.PHONY: push
+push:
+	docker push $(IMAGE_HOST)/$(IMAGE):$(VERSION)
 
 .PHONY: deploy
 deploy:

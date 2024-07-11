@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"app.ai_painter/pkg/rsa256"
+	"app_ink/pkg/rsa256"
 
 	"github.com/gin-gonic/gin"
 )

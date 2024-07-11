@@ -1,6 +1,6 @@
 package controller
 
-import "app.ai_painter/app/core"
+import "app_ink/app/core"
 
 // Controller 结构体
 // 包含了所有的控制器

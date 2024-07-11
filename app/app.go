@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"app.ai_painter/app/controller"
-	"app.ai_painter/app/core"
-	"app.ai_painter/app/middleware"
+	"app_ink/app/controller"
+	"app_ink/app/core"
+	"app_ink/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,9 +31,9 @@ func createEngine() *gin.Engine {
 		icon := "/favicon.svg"
 		asset := "/assets"
 		index := base + "/index.html"
+		router.Static(asset, base+asset)
 		router.StaticFile("/", index)
 		router.StaticFile(icon, base+icon)
-		router.Static(asset, base+asset)
 		router.NoRoute(func(c *gin.Context) { c.File(index) })
 	}
 
@@ -84,5 +84,3 @@ func createEngine() *gin.Engine {
 
 	return router
 }
-
-// http://xxxxxxxx http://xxxxxxxx a, b, c --ar 3:4 --xx 11

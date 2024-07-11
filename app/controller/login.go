@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"app.ai_painter/app/model"
-	"app.ai_painter/pkg/rsa256"
-	"app.ai_painter/pkg/util"
+	"app_ink/app/model"
+	"app_ink/pkg/rsa256"
+	"app_ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

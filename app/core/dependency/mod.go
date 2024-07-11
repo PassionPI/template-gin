@@ -3,11 +3,11 @@ package dependency
 import (
 	"os"
 
-	"app.ai_painter/app/common"
-	"app.ai_painter/app/service/mgo"
-	"app.ai_painter/app/service/rds"
-	"app.ai_painter/app/tasks"
-	"app.ai_painter/pkg/token"
+	"app_ink/app/common"
+	"app_ink/app/service/mgo"
+	"app_ink/app/service/rds"
+	"app_ink/app/tasks"
+	"app_ink/pkg/token"
 )
 
 type env struct {
@@ -19,7 +19,7 @@ type env struct {
 }
 
 func getEnv() *env {
-	AppName := os.Getenv("IMAGE")        // "ai_painter"
+	AppName := os.Getenv("IMAGE")        // "app_ink"
 	RedisURI := os.Getenv("REDIS_URI")   // "redis://localhost:6379/0"
 	MongoURI := os.Getenv("MONGODB_URI") // "mongodb://localhost:27017"
 	JwtSecret := os.Getenv("JWT_SECRET") // "Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ"

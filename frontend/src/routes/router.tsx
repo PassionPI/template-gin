@@ -15,7 +15,8 @@ const Login = suspense(() => import("@/pages/Login"));
 const Sign = suspense(() => import("@/pages/Sign"));
 const Home = suspense(() => import("@/pages/Home"));
 const NotFound = suspense(() => import("@/components/NotFound"));
-
+const wait = (time: number) =>
+  new Promise((resolve) => setTimeout(resolve, time));
 export const AppRouter = createBrowserRouter([
   {
     path: "/",
@@ -26,18 +27,9 @@ export const AppRouter = createBrowserRouter([
       </>
     ),
     loader: async () => {
-      invokePubKey();
-      const { pathname } = location;
-      const authorization = await isAuthorization();
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("authorization", authorization);
-      if (authorization) {
-        return null;
-      }
-      if (pathname === ROUTE.login.__ || pathname === ROUTE.sign.__) {
-        return null;
-      }
-      return redirect(ROUTE.login.__);
+      await wait(1000);
+      console.log("AppRouter");
+      return null;
     },
     children: [
       {
@@ -55,6 +47,21 @@ export const AppRouter = createBrowserRouter([
       },
       {
         path: "/",
+        loader: async () => {
+          console.log("/AppRouter");
+          invokePubKey();
+          const { pathname } = location;
+          const authorization = await isAuthorization();
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          console.log("authorization", authorization);
+          if (authorization) {
+            return null;
+          }
+          if (pathname === ROUTE.login.__ || pathname === ROUTE.sign.__) {
+            return null;
+          }
+          return redirect(ROUTE.login.__);
+        },
         children: [
           {
             index: true,

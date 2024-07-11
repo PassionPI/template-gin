@@ -3,7 +3,7 @@ package mgo
 import (
 	"context"
 
-	"app.ai_painter/app/model"
+	"app_ink/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 )

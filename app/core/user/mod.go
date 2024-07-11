@@ -1,7 +1,7 @@
 package user
 
 import (
-	"app.ai_painter/app/core/dependency"
+	"app_ink/app/core/dependency"
 )
 
 // Middleware 结构体

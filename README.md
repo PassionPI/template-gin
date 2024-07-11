@@ -39,3 +39,36 @@ app/model - 应用数据模型
 app/tasks - 定时任务
 
 app/view - 视图数据模型
+
+### 启动项目
+
+可以在 `.vscode/launch.json` 指定指定开发环境所需的内容, 然后通过 `Debug` 的 `Debug Gin Server` 启动
+
+或者在 `Makefile` 里指定开发环境所需的内容, 然后执行命令
+
+```bash
+$ make dev
+```
+
+### 部署项目
+
+```bash
+$ VERSION=1 \
+JWT_SECRET=JWT_SECRET \
+REDIS_PASSWORD=redis \
+DB_USERNAME=mongo \
+DB_PASSWORD=mongo \
+make deploy
+```
+
+### 查看项目状态
+
+```bash
+$ docker stack services app_ink
+```
+
+清除不运行镜像
+
+```bash
+$ docker container prune
+```
