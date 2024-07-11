@@ -1,33 +1,41 @@
 package controller
 
 import (
-	"context"
 	"net/http"
 
-	"app_land_x/app/model"
-	"app_land_x/pkg/req"
-	"app_land_x/pkg/resp"
-	"app_land_x/pkg/rsa256"
+	"app_ink/app/model"
+	"app_ink/pkg/rsa256"
+	"app_ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
+// Ping 测试网络通畅接口
 func (ctrl *Controller) Ping(c *gin.Context) {
 	c.String(http.StatusOK, "Hello!")
 }
 
+// Echo 测试接口，返回请求的 URL
+func (ctrl *Controller) Echo(c *gin.Context) {
+	c.String(http.StatusOK, c.Request.URL.Path)
+}
+
+// Pub 返回公钥
 func (ctrl *Controller) Pub(c *gin.Context) {
 	publicKey, err := rsa256.GetPublicKey()
 	if err != nil {
-		resp.Err(c, "Failed to get public key")
+		util.Err(c, "Failed to get public key")
 		return
 	}
 
-	resp.Ok(c, &gin.H{"publicKey": string(publicKey)})
+	util.Ok(c, &gin.H{"publicKey": string(publicKey)})
 }
 
+// Sign 注册接口
 func (ctrl *Controller) Sign(c *gin.Context) {
-	creds, err := req.JSON[model.Credentials](c)
+	creds, err := util.JSON[model.Credentials](c)
+	ctx := c.Request.Context()
 
 	if err != nil {
 		return
@@ -37,26 +45,38 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 	password, err := rsa256.Decrypt(creds.Password)
 
 	if err != nil {
-		resp.Err(c, "Invalid password")
+		util.Err(c, "Invalid password")
 		return
 	}
 
-	_, err = ctrl.Mongo.FindUserByUsername(username)
+	err = ctrl.core.Dep.Mongo.Collection.Users.FindOne(
+		ctx,
+		bson.M{
+			"username": username,
+		},
+	).Decode(&model.Credentials{})
 	if err != nil {
 		userSignUp := model.Credentials{
 			Username: username,
 			Password: password,
 		}
-		ctrl.Mongo.Collection.Users.InsertOne(context.TODO(), userSignUp)
+		_, err := ctrl.core.Dep.Mongo.Collection.Users.InsertOne(ctx, userSignUp)
+
+		if err != nil {
+			util.Err(c, "Failed to insert user")
+			return
+		}
 
 		ctrl.responseWithJwtToken(c, username)
 		return
 	}
-	resp.Err(c, "Username already exists")
+	util.Err(c, "Username already exists")
 }
 
+// Login 登录接口
 func (ctrl *Controller) Login(c *gin.Context) {
-	creds, err := req.JSON[model.Credentials](c)
+	creds, err := util.JSON[model.Credentials](c)
+	ctx := c.Request.Context()
 
 	if err != nil {
 		return
@@ -68,19 +88,19 @@ func (ctrl *Controller) Login(c *gin.Context) {
 	message := "Invalid password"
 
 	if err != nil {
-		resp.Err(c, message)
+		util.Err(c, message)
 		return
 	}
 
-	user, err := ctrl.Mongo.FindUserByUsername(username)
+	user, err := ctrl.core.Dep.Mongo.FindUserByUsername(ctx, username)
 
 	if err != nil {
-		resp.Err(c, "No account of this username found")
+		util.Err(c, "No account of this username found")
 		return
 	}
 
 	if password != user.Password {
-		resp.Err(c, message)
+		util.Err(c, message)
 		return
 	}
 

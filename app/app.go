@@ -1,55 +1,85 @@
 package main
 
 import (
-	"os"
+	"time"
 
-	"app_land_x/app/controller"
-	"app_land_x/app/middleware"
-	"app_land_x/app/service/mgo"
-	"app_land_x/app/service/rds"
-	"app_land_x/pkg/rsa256"
-	"app_land_x/pkg/token"
+	"app_ink/app/controller"
+	"app_ink/app/core"
+	"app_ink/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-func createController() *controller.Controller {
-	redisURI := os.Getenv("REDIS_URI")   // "redis://localhost:6379/0"
-	mongoURI := os.Getenv("MONGODB_URI") // "mongodb://localhost:27017"
-	jwtSecret := os.Getenv("JWT_SECRET") // "Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ"
-
-	return &controller.Controller{
-		Rds:   rds.New(redisURI),
-		Mongo: mgo.New(mongoURI),
-		Token: token.New(jwtSecret),
-	}
-}
-
 func createEngine() *gin.Engine {
-	rsa256.CreateRsaPem()
+	core := core.New()
 
-	ctrl := createController()
-	mids := middleware.New(ctrl)
+	initialize(core.Dep.Env.VolumePath)
+
+	ctrl := controller.New(core)
+	mids := middleware.New(core)
 
 	router := gin.New()
 	router.Use(
 		gin.Logger(),
 		gin.Recovery(),
+		mids.RateLimiter(30, time.Minute),
 	)
 
 	// 前端静态资源
-	ctrl.Frontend(router)
+	{
+		base := "./frontend"
+		icon := "/favicon.svg"
+		asset := "/assets"
+		index := base + "/index.html"
+		router.Static(asset, base+asset)
+		router.StaticFile("/", index)
+		router.StaticFile(icon, base+icon)
+		router.NoRoute(func(c *gin.Context) { c.File(index) })
+	}
 
-	router.POST("/pub", ctrl.Pub)
-	router.POST("/sign", ctrl.Sign)
-	router.POST("/login", ctrl.Login) // need throttle, lock
+	// 上传静态资源
+	{
+		upload := "/upload"
+		router.Static(upload, core.Dep.Env.VolumePath+upload)
+	}
 
 	{
-		authorized := router.Group("/api")
-		authorized.Use(mids.AuthValidator())
+		pub := router.Group("/api")
+		pub.POST("/pub", ctrl.Pub)
+		pub.POST("/sign", ctrl.Sign)
+		pub.POST("/login", ctrl.Login) // need throttle, lock
+	}
 
-		authorized.POST("/", ctrl.Protected)
-		authorized.POST("/ping", ctrl.Ping)
+	{
+		api := router.Group("/api")
+		api.Use(
+			mids.AuthValidator(),
+		)
+
+		api.POST("/ping", ctrl.Ping)
+
+		{
+			user := api.Group("/user")
+			user.POST("/privilege/put", ctrl.Echo)
+			user.POST("/privilege/get", ctrl.Echo)
+		}
+	}
+
+	{
+		// open := router.Group("/open")
+		// open.Use(
+		// 	gin.BasicAuth(gin.Accounts{"miss": "ballad"}),
+		// )
+
+	}
+
+	{
+		// webhook := router.Group("/webhook")
+
+		// {
+		// 	github := webhook.Group("/github")
+		// 	github.POST("/pr", ctrl.WebhookGithubPR)
+		// }
 	}
 
 	return router

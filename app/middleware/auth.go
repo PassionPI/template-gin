@@ -11,6 +11,7 @@ import (
 const jwtBearer = "Bearer "
 const jwtBearerLen = len(jwtBearer)
 
+// AuthValidator validates the JWT token
 func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authorization := ctx.Request.Header.Get("Authorization")
@@ -36,7 +37,7 @@ func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 		}
 
 		// Parse the JWT token and verify the signature
-		claims, token, err := mid.ctrl.Token.Parse(authorization[jwtBearerLen:])
+		claims, token, err := mid.core.Dep.Token.Parse(authorization[jwtBearerLen:])
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
@@ -65,8 +66,8 @@ func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 			return
 		}
 
-		if claims.ExpiresAt.Time.Sub(time.Now()) < mid.ctrl.Token.Refresh {
-			newToken, _ := mid.ctrl.Token.Generate(claims.Username)
+		if claims.ExpiresAt.Time.Sub(time.Now()) < mid.core.Dep.Token.Refresh {
+			newToken, _ := mid.core.Dep.Token.Generate(claims.Username)
 			ctx.Header("Authorization", newToken)
 		}
 

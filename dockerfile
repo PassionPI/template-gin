@@ -12,10 +12,12 @@ RUN pnpm install
 
 COPY frontend .
 
-RUN pnpm run build
+RUN npm run build
 
+# 构建后端资源
+FROM golang:alpine as builder
 
-FROM golang:alpine as builder-backend
+ARG APP_DIR=./app
 
 ENV GOOS=linux
 ENV GOARCH=amd64
@@ -32,7 +34,7 @@ RUN go mod download
 
 COPY . /app
 
-RUN go build -o=x ./app
+RUN go build -o=x ${APP_DIR}
 
 
 FROM scratch as release
@@ -41,8 +43,8 @@ ENV GIN_MODE=release
 
 WORKDIR /app
 
+COPY --from=builder /app/x .
 COPY --from=builder-frontend /app/dist ./frontend
-COPY --from=builder-backend /app/x .
 
 EXPOSE 8080
 

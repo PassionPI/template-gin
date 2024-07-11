@@ -3,14 +3,15 @@ package mgo
 import (
 	"context"
 
-	"app_land_x/app/model"
+	"app_ink/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (mongo *Mongo) FindUserByUsername(username string) (credentials model.Credentials, err error) {
+// FindUserByUsername 根据用户名查找用户
+func (mongo *Mongo) FindUserByUsername(ctx context.Context, username string) (credentials model.Credentials, err error) {
 	err = mongo.Collection.Users.FindOne(
-		context.TODO(),
+		ctx,
 		bson.M{
 			"username": username,
 		},

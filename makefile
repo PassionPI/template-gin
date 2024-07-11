@@ -1,21 +1,25 @@
-IMAGE?=app_land_x
+IMAGE_HOST?=docker.io
+IMAGE?=app_ink
 VERSION?=0
 
-JWT_SECRET?=Wia3d3zRH84SuLo5n6WCfR5YNU09qLLZHlBnWeGnFZ
+JWT_SECRET?=JWT_SECRET
+
 REDIS_PASSWORD?=redis
-RABBIT_USERNAME?=rabbit
-RABBIT_PASSWORD?=rabbit
+
 DB_USERNAME?=mongo
 DB_PASSWORD?=mongo
+
+RABBIT_USERNAME?=rabbit
+RABBIT_PASSWORD?=rabbit
 
 APP=./app
 
 .PHONY: dev
 dev:
+	IMAGE=$(IMAGE) \
 	JWT_SECRET=$(JWT_SECRET) \
-  REDIS_URI=redis://default:$(REDIS_PASSWORD)@localhost:6379 \
-  RABBIT_URI=amqp://$(RABBIT_USERNAME):$(RABBIT_PASSWORD)@localhost:5672 \
-  MONGODB_URI=mongodb://$(DB_USERNAME):$(DB_PASSWORD)@localhost:27017 \
+	REDIS_URI=redis://localhost:6379 \
+  MONGODB_URI=mongodb://localhost:27017 \
 	go run $(APP)
 
 .PHONY: fmt
@@ -25,11 +29,20 @@ fmt:
 
 .PHONY: test
 test:
-	go test -v -cover ./ -count=1
+	go test -v -cover -count=1 ./...
+
+.PHONY: lint
+lint:
+	make fmt
+	make test
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE):$(VERSION) .
+	docker build --build-arg APP_DIR=./app -t $(IMAGE):$(VERSION) .
+	
+.PHONY: push
+push:
+	docker push $(IMAGE_HOST)/$(IMAGE):$(VERSION)
 
 .PHONY: deploy
 deploy:
@@ -38,11 +51,9 @@ deploy:
 	VERSION=$(VERSION) \
 	JWT_SECRET=$(JWT_SECRET) \
 	REDIS_PASSWORD=$(REDIS_PASSWORD) \
-	RABBIT_USERNAME=$(RABBIT_USERNAME) \
-	RABBIT_PASSWORD=$(RABBIT_PASSWORD) \
 	DB_USERNAME=$(DB_USERNAME) \
 	DB_PASSWORD=$(DB_PASSWORD) \
 	docker stack deploy \
 		--compose-file=./docker-stack.yml \
 		--prune \
-		stack_$(IMAGE)
+		$(IMAGE)

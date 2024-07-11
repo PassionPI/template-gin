@@ -1,37 +1,6 @@
 version: "3.7"
 
 services:
-  application:
-    image: ${IMAGE}:${VERSION}
-    networks:
-      - overlay
-    ports:
-      - "8080:8080"
-    volumes:
-      - application:/app/private
-    environment:
-      - GIN_MODE=release
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_URI=redis://default:${REDIS_PASSWORD}@mid-redis:6379
-      - RABBIT_URI=amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@mid-rabbit:5672
-      - MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@db-mongo:27017
-      
-    deploy:
-      mode: replicated
-      replicas: 2
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 2048M
-        reservations:
-          cpus: '0.25'
-          memory: 512M
-
-    depends_on:
-      - db-mongo
-      - mid-redis
-      - mid-rabbit
-      
   db-mongo:
     image: mongo:latest
     networks:
@@ -77,34 +46,66 @@ services:
           cpus: '0.50'
           memory: 2048M
 
-  mid-rabbit: 
-    image: rabbitmq:alpine
+  # mid-rabbit: 
+  #   image: rabbitmq:alpine
+  #   networks:
+  #     - overlay
+  #   ports:
+  #     - "5672:5672"
+  #   volumes:
+  #     - mid-rabbit:/var/lib/rabbitmq
+  #   environment:
+  #     - RABBITMQ_DEFAULT_VHOST=rabbit_application
+  #     - RABBITMQ_DEFAULT_USER=${RABBIT_USERNAME}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         cpus: '1.00'
+  #         memory: 2048M
+  #       reservations:
+  #         cpus: '0.50'
+  #         memory: 1024M
+  
+  application:
+    image: ${IMAGE}:${VERSION}
     networks:
       - overlay
     ports:
-      - "5672:5672"
+      - "80:8080"
     volumes:
-      - mid-rabbit:/var/lib/rabbitmq
+      - application:/app/private
     environment:
-      - RABBITMQ_DEFAULT_VHOST=rabbit_host
-      - RABBITMQ_DEFAULT_USER=${RABBIT_USERNAME}
-      - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
-
+      - GIN_MODE=release
+      - IMAGE=${IMAGE}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_URI=redis://default:${REDIS_PASSWORD}@mid-redis:6379
+      # - RABBIT_URI=amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@mid-rabbit:5672
+      - MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@db-mongo:27017
+      
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       resources:
         limits:
-          cpus: '1.00'
-          memory: 2048M
-        reservations:
           cpus: '0.50'
           memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 512M
 
+    depends_on:
+      - db-mongo
+      - mid-redis
+      # - mid-rabbit
+      
 volumes:
   application:
   mid-redis: 
-  mid-rabbit: 
+  # mid-rabbit: 
   db-mongo:
     # driver: local
 
