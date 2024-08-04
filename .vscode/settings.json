@@ -3,11 +3,16 @@
     "amqp",
     "bson",
     "cpus",
+    "dbname",
     "gocron",
     "gonic",
+    "jackc",
     "pgdialect",
     "pgdriver",
     "rabbitmq",
+    "sslmode",
+    "TIMESTAMPTZ",
+    "Todos",
     "uptrace"
   ]
 }

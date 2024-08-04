@@ -29,8 +29,7 @@ func (m *Middleware) RateLimiter(maxRequests int64, duration time.Duration) gin.
 
 		if count > maxRequests {
 			// "code": http.StatusTooManyRequests,
-			util.Err(c, "请求过多，请稍后重试")
-			c.Abort()
+			util.Bad(c, "请求过多，请稍后重试")
 			return
 		}
 		c.Next()

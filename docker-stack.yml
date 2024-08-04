@@ -1,31 +1,55 @@
 version: "3.7"
 
 services:
-  db-mongo:
-    image: mongo:latest
+  # db-mongo:
+  #   image: registry.cn-hangzhou.aliyuncs.com/jrjr/mongo:7.0.12
+  #   networks:
+  #     - overlay
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - db-mongo:/data/db
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         cpus: "2.00"
+  #         memory: 4096M
+  #       reservations:
+  #         cpus: "1.00"
+  #         memory: 2048M
+
+  db-postgres:
+    image: registry.cn-hangzhou.aliyuncs.com/jrjr/postgres:16.3-alpine3.20
     networks:
       - overlay
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - db-mongo:/data/db
+      - db-postgres:/var/lib/postgresql/data
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - PGTZ=$(TIMEZONE)
+      - POSTGRES_USER=${PG_USERNAME}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
 
     deploy:
       mode: replicated
       replicas: 1
       resources:
         limits:
-          cpus: '2.00'
+          cpus: "2.00"
           memory: 4096M
         reservations:
-          cpus: '1.00'
+          cpus: "1.00"
           memory: 2048M
 
-  mid-redis: 
-    image: redis:alpine
+  mid-redis:
+    image: registry.cn-hangzhou.aliyuncs.com/jrjr/redis:7.2.5-alpine3.20
     networks:
       - overlay
     ports:
@@ -40,13 +64,13 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: '1.00'
+          cpus: "1.00"
           memory: 4096M
         reservations:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 2048M
 
-  # mid-rabbit: 
+  # mid-rabbit:
   #   image: rabbitmq:alpine
   #   networks:
   #     - overlay
@@ -55,7 +79,7 @@ services:
   #   volumes:
   #     - mid-rabbit:/var/lib/rabbitmq
   #   environment:
-  #     - RABBITMQ_DEFAULT_VHOST=rabbit_application
+  #     - RABBITMQ_DEFAULT_VHOST=rabbit_vhost
   #     - RABBITMQ_DEFAULT_USER=${RABBIT_USERNAME}
   #     - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
 
@@ -69,7 +93,7 @@ services:
   #       reservations:
   #         cpus: '0.50'
   #         memory: 1024M
-  
+
   application:
     image: ${IMAGE}:${VERSION}
     networks:
@@ -84,29 +108,32 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - REDIS_URI=redis://default:${REDIS_PASSWORD}@mid-redis:6379
       # - RABBIT_URI=amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@mid-rabbit:5672
-      - MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@db-mongo:27017
-      
+      # - MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@db-mongo:27017
+      - POSTGRES_URL=postgres://${PG_USERNAME}:${PG_PASSWORD}@db-postgres:5432/${PG_USERNAME}?sslmode=disable
+
     deploy:
       mode: replicated
       replicas: 2
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 1024M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 512M
 
     depends_on:
-      - db-mongo
+      # - db-mongo
+      - db-postgres
       - mid-redis
       # - mid-rabbit
-      
+
 volumes:
   application:
-  mid-redis: 
-  # mid-rabbit: 
-  db-mongo:
+  mid-redis:
+  # mid-rabbit:
+  # db-mongo:
+  db-postgres:
     # driver: local
 
 networks:

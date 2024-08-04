@@ -21,14 +21,35 @@ func JSON[T any](c *gin.Context) (val *T, err error) {
 func Ok(c *gin.Context, data any) {
 	c.JSON(
 		http.StatusOK,
-		gin.H{"data": data},
+		data,
 	)
 }
 
 // Err 返回错误响应
 func Err(c *gin.Context, message string) {
-	c.JSON(
-		http.StatusOK,
-		gin.H{"error": message},
+	c.AbortWithStatusJSON(
+		http.StatusInternalServerError,
+		message,
+	)
+}
+
+func Bad(c *gin.Context, message string) {
+	c.AbortWithStatusJSON(
+		http.StatusBadRequest,
+		message,
+	)
+}
+
+func NotFound(c *gin.Context, message string) {
+	c.AbortWithStatusJSON(
+		http.StatusNotFound,
+		message,
+	)
+}
+
+func UnAuth(c *gin.Context, message string) {
+	c.AbortWithStatusJSON(
+		http.StatusUnauthorized,
+		message,
 	)
 }

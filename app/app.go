@@ -10,10 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func createEngine() *gin.Engine {
-	core := core.New()
-
-	initialize(core.Dep.Env.VolumePath)
+func createEngine(core *core.Core) *gin.Engine {
 
 	ctrl := controller.New(core)
 	mids := middleware.New(core)
@@ -27,14 +24,14 @@ func createEngine() *gin.Engine {
 
 	// 前端静态资源
 	{
-		base := "./frontend"
-		icon := "/favicon.svg"
-		asset := "/assets"
-		index := base + "/index.html"
-		router.Static(asset, base+asset)
-		router.StaticFile("/", index)
-		router.StaticFile(icon, base+icon)
-		router.NoRoute(func(c *gin.Context) { c.File(index) })
+		// base := "./frontend"
+		// icon := "/favicon.svg"
+		// asset := "/assets"
+		// index := base + "/index.html"
+		// router.Static(asset, base+asset)
+		// router.StaticFile("/", index)
+		// router.StaticFile(icon, base+icon)
+		// router.NoRoute(func(c *gin.Context) { c.File(index) })
 	}
 
 	// 上传静态资源

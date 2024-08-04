@@ -1,24 +1,21 @@
 package controller
 
 import (
-	"net/http"
-
 	"app_ink/app/model"
 	"app_ink/pkg/rsa256"
 	"app_ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Ping 测试网络通畅接口
 func (ctrl *Controller) Ping(c *gin.Context) {
-	c.String(http.StatusOK, "Hello!")
+	util.Ok(c, "Hi!")
 }
 
 // Echo 测试接口，返回请求的 URL
 func (ctrl *Controller) Echo(c *gin.Context) {
-	c.String(http.StatusOK, c.Request.URL.Path)
+	util.Ok(c, c.Request.URL.Path)
 }
 
 // Pub 返回公钥
@@ -45,32 +42,29 @@ func (ctrl *Controller) Sign(c *gin.Context) {
 	password, err := rsa256.Decrypt(creds.Password)
 
 	if err != nil {
-		util.Err(c, "Invalid password")
+		util.Bad(c, "Invalid password")
 		return
 	}
 
-	err = ctrl.core.Dep.Mongo.Collection.Users.FindOne(
-		ctx,
-		bson.M{
-			"username": username,
-		},
-	).Decode(&model.Credentials{})
+	_, err = ctrl.core.Dep.Pg.UserFindByUsername(ctx, username)
+
 	if err != nil {
 		userSignUp := model.Credentials{
 			Username: username,
 			Password: password,
 		}
-		_, err := ctrl.core.Dep.Mongo.Collection.Users.InsertOne(ctx, userSignUp)
+
+		err := ctrl.core.Dep.Pg.UserInsert(ctx, userSignUp)
 
 		if err != nil {
-			util.Err(c, "Failed to insert user")
+			util.Bad(c, "Failed to insert user")
 			return
 		}
 
 		ctrl.responseWithJwtToken(c, username)
 		return
 	}
-	util.Err(c, "Username already exists")
+	util.Bad(c, "Username already exists")
 }
 
 // Login 登录接口
@@ -88,19 +82,19 @@ func (ctrl *Controller) Login(c *gin.Context) {
 	message := "Invalid password"
 
 	if err != nil {
-		util.Err(c, message)
+		util.Bad(c, message)
 		return
 	}
 
-	user, err := ctrl.core.Dep.Mongo.FindUserByUsername(ctx, username)
+	user, err := ctrl.core.Dep.Pg.UserFindByUsername(ctx, username)
 
 	if err != nil {
-		util.Err(c, "No account of this username found")
+		util.NotFound(c, "No account of this username found")
 		return
 	}
 
 	if password != user.Password {
-		util.Err(c, message)
+		util.Bad(c, message)
 		return
 	}
 
