@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"app_ink/app/controller"
+	"app_ink/app/controller/middleware"
 	"app_ink/app/core"
-	"app_ink/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,6 +59,11 @@ func createEngine(core *core.Core) *gin.Engine {
 			user := api.Group("/user")
 			user.POST("/privilege/put", ctrl.Echo)
 			user.POST("/privilege/get", ctrl.Echo)
+		}
+		{
+			todo := api.Group("/todo")
+			todo.POST("/list", ctrl.TodoList)
+			todo.POST("/add", ctrl.TodoAdd)
 		}
 	}
 

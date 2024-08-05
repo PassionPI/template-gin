@@ -3,7 +3,6 @@ package dependency
 import (
 	"os"
 
-	"app_ink/app/common"
 	// "app_ink/app/service/mgo"
 	"app_ink/app/service/pg"
 	"app_ink/app/service/rds"
@@ -45,7 +44,6 @@ type Dependency struct {
 	// Mongo     *mgo.Mongo
 	Pg        *pg.Pg
 	Token     *token.Token
-	Common    *common.Common
 	Scheduler *tasks.Tasks
 }
 
@@ -57,7 +55,6 @@ func New() *Dependency {
 	// Mongo := mgo.New(Env.MongoURI, Env.AppName)
 	Pg := pg.New(Env.PostgresURI)
 	Token := token.New(Env.JwtSecret)
-	Common := common.New()
 	Scheduler := tasks.New(Rds.Client)
 
 	return &Dependency{
@@ -66,7 +63,6 @@ func New() *Dependency {
 		Rds: Rds,
 		// Mongo:     Mongo,
 		Token:     Token,
-		Common:    Common,
 		Scheduler: Scheduler,
 	}
 }

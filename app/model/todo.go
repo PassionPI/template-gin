@@ -1,8 +1,8 @@
 package model
 
 type TodoCreateItem struct {
-	Username    string `json:"username" binding:"required,min=4,max=32"`
+	ID          int    `json:"id"`   // 可选字段
+	Done        bool   `json:"done"` // 可选字段
 	Title       string `json:"title"`
-	Description string `json:"description"`
-	DeadLine    string `json:"dead_line"`
+	Description string `json:"description,omitempty"` // 可选字段
 }

@@ -1,11 +1,13 @@
 package common
 
 type Common struct {
-	Error *Error
+	Error  *Error
+	Parser *Parser
 }
 
 func New() *Common {
 	return &Common{
-		Error: NewError(),
+		Error:  NewError(),
+		Parser: NewParser(),
 	}
 }

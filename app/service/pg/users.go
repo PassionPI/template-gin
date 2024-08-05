@@ -6,8 +6,9 @@ import (
 )
 
 var sqlUsers = createTableSql("users",
-	"id SERIAL  PRIMARY KEY",
+	"id         SERIAL PRIMARY KEY",
 	"created_at TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
+	"updated_at TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"username   TEXT NOT NULL",
 	"password   TEXT NOT NULL",
 	"role       TEXT",
