@@ -9,20 +9,20 @@ import (
 )
 
 type Pg struct {
-	DB *pgx.Conn
+	Conn *pgx.Conn
 }
 
 func New(uri string) *Pg {
 	background := context.Background()
 	// 连接数据库
-	db, err := pgx.Connect(background, uri)
+	Conn, err := pgx.Connect(background, uri)
 
 	if err != nil {
 		log.Fatal("Unable to connect to database: %v\n", err)
 	}
 
 	// 检查连接
-	err = db.Ping(background)
+	err = Conn.Ping(background)
 
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +30,7 @@ func New(uri string) *Pg {
 
 	fmt.Println("Postgres Successfully connected!")
 
-	ensureTableExists(background, db, []string{
+	ensureTableExists(background, Conn, []string{
 		sqlUsers,
 		createIndexSql("users", "username"),
 		createIndexSql("users", "role"),
@@ -40,7 +40,7 @@ func New(uri string) *Pg {
 	})
 
 	return &Pg{
-		DB: db,
+		Conn,
 	}
 }
 

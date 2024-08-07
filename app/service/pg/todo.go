@@ -9,25 +9,22 @@ var sqlTodo = createTableSql("todo",
 	"id          SERIAL PRIMARY KEY",
 	"created_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"updated_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
-	"dead_line   TIMESTAMPTZ",
+	"deadline    TIMESTAMPTZ",
 	"username    TEXT NOT NULL",
 	"title       TEXT NOT NULL",
 	"done        BOOLEAN DEFAULT false",
 	"description TEXT",
 )
 
-type TodoInsertParams struct {
-	Title string `json:"title"`
-	// Description string `json:"description" binding:"optional"`
-	// DeadLine    string `json:"deadline" binding:"optional"`
-}
-
-func (pg *Pg) TodoInsert(ctx context.Context, username string, todo *TodoInsertParams) (err error) {
-	_, err = pg.DB.Exec(ctx, `
-		INSERT INTO todo (username, title)
+func (pg *Pg) TodoInsert(ctx context.Context, username string, todo *model.TodoCreateItem) (err error) {
+	_, err = pg.Conn.Exec(ctx, `
+		INSERT INTO todo (username, title, deadline, description)
 		VALUES ($1, $2)
-	`, username, todo.Title,
-	// todo.Description, todo.DeadLine,
+	`,
+		username,
+		todo.Title,
+		todo.DeadLine,
+		todo.Description,
 	)
 
 	return err
@@ -53,9 +50,9 @@ func (param *TodoFindByUsernameParams) SetPagination(pagination *model.Paginatio
 func (pg *Pg) TodoFindByUsername(
 	ctx context.Context,
 	param *TodoFindByUsernameParams,
-) (todos []model.TodoCreateItem, err error) {
-	rows, err := pg.DB.Query(ctx, `
-		SELECT id, title, done
+) (todos []model.TodoScanItem, err error) {
+	rows, err := pg.Conn.Query(ctx, `
+		SELECT id, title, done, deadline, description
 		FROM todo
 		WHERE username = $1
 		ORDER BY created_at DESC
@@ -72,13 +69,13 @@ func (pg *Pg) TodoFindByUsername(
 	}
 
 	for rows.Next() {
-		var todo model.TodoCreateItem
+		var todo model.TodoScanItem
 		err = rows.Scan(
 			&todo.ID,
 			&todo.Title,
 			&todo.Done,
-			// &todo.Description,
-			// &todo.DeadLine,
+			&todo.DeadLine,
+			&todo.Description,
 		)
 		if err != nil {
 			return nil, err
@@ -89,23 +86,24 @@ func (pg *Pg) TodoFindByUsername(
 	return todos, nil
 }
 
-func (pg *Pg) TodoFindById(ctx context.Context, id int) (todo model.TodoCreateItem, err error) {
-	err = pg.DB.QueryRow(ctx, `
-		SELECT title 
+func (pg *Pg) TodoFindById(ctx context.Context, id int) (todo model.TodoScanItem, err error) {
+	err = pg.Conn.QueryRow(ctx, `
+		SELECT id, title, done, deadline, description
 		FROM todo
 		WHERE id = $1
 	`, id).Scan(
-		// &todo.Username,
+		&todo.ID,
 		&todo.Title,
-		// &todo.Description,
-		// &todo.DeadLine,
+		&todo.Done,
+		&todo.DeadLine,
+		&todo.Description,
 	)
 
 	return todo, err
 }
 
 func (pg *Pg) TodoDeleteById(ctx context.Context, id int) (err error) {
-	_, err = pg.DB.Exec(ctx, `
+	_, err = pg.Conn.Exec(ctx, `
 		DELETE FROM todo
 		WHERE id = $1
 	`, id)
@@ -113,14 +111,23 @@ func (pg *Pg) TodoDeleteById(ctx context.Context, id int) (err error) {
 	return err
 }
 
-func (pg *Pg) TodoUpdateById(ctx context.Context, id int, todo model.TodoCreateItem) (err error) {
-	_, err = pg.DB.Exec(ctx, `
+func (pg *Pg) TodoUpdateById(ctx context.Context, todo *model.TodoUpdateItem) (err error) {
+	_, err = pg.Conn.Exec(ctx, `
 		UPDATE todo
-		SET title = $1, -- description = $2, dead_line = $3
+		SET 
+			updated_at = NOW(),
+			-- title = $1, 
+			done = $1
+			-- description = $3,
+			-- deadline = $4
 		WHERE id = $2
-	`, todo.Title,
-		// todo.Description, todo.DeadLine,
-		id)
+	`,
+		// todo.Title,
+		todo.Done,
+		// todo.DeadLine,
+		// todo.Description,
+		todo.ID,
+	)
 
 	return err
 }

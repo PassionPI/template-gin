@@ -17,7 +17,7 @@ var sqlUsers = createTableSql("users",
 )
 
 func (pg *Pg) UserFindByUsername(ctx context.Context, username string) (credentials model.Credentials, err error) {
-	err = pg.DB.QueryRow(ctx, `
+	err = pg.Conn.QueryRow(ctx, `
 		SELECT username, password 
 		FROM users
 		WHERE username = $1
@@ -27,7 +27,7 @@ func (pg *Pg) UserFindByUsername(ctx context.Context, username string) (credenti
 }
 
 func (pg *Pg) UserInsert(ctx context.Context, credentials model.Credentials) (err error) {
-	_, err = pg.DB.Exec(ctx, `
+	_, err = pg.Conn.Exec(ctx, `
 		INSERT INTO users (username, password)
 		VALUES ($1, $2)
 	`, credentials.Username, credentials.Password)

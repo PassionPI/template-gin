@@ -62,8 +62,9 @@ func createEngine(core *core.Core) *gin.Engine {
 		}
 		{
 			todo := api.Group("/todo")
-			todo.POST("/list", ctrl.TodoList)
 			todo.POST("/add", ctrl.TodoAdd)
+			todo.POST("/list", ctrl.TodoList)
+			todo.POST("/update", ctrl.TodoUpdate)
 		}
 	}
 

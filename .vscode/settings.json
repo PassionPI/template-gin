@@ -9,6 +9,7 @@
     "jackc",
     "pgdialect",
     "pgdriver",
+    "pgtype",
     "rabbitmq",
     "sslmode",
     "TIMESTAMPTZ",

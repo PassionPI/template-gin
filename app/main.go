@@ -43,7 +43,7 @@ func main() {
 	background := context.Background()
 	core := core.New()
 
-	defer core.Dep.Pg.DB.Close(background)
+	defer core.Dep.Pg.Conn.Close(background)
 	defer core.Dep.Rds.Client.Close()
 	// defer core.Dep.Mongo.Client.Disconnect(context.TODO())
 
