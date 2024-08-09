@@ -64,7 +64,7 @@ make deploy
 ### 查看项目状态
 
 ```bash
-$ docker stack services app_ink
+$ docker stack services app-ink
 ```
 
 清除不运行镜像

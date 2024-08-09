@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"app_ink/app/model"
-	"app_ink/pkg/rsa256"
-	"app_ink/pkg/util"
+	"app-ink/app/model"
+	"app-ink/pkg/rsa256"
+	"app-ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,7 +9,7 @@ import (
 
 // JSON 解析请求体
 // 给定类型，自动解析请求体
-func JSON[T any](c *gin.Context) (val *T, err error) {
+func JSON[T any](c *gin.Context) (val T, err error) {
 	err = c.ShouldBindJSON(&val)
 	if err != nil {
 		Err(c, fmt.Errorf("Invalid request format %v", err).Error())

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"app_ink/pkg/util"
+	"app-ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )

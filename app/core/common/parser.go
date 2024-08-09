@@ -1,7 +1,7 @@
 package common
 
 import (
-	"app_ink/app/model"
+	"app-ink/app/model"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,7 @@ func (p *Parser) PaginationQuery(c *gin.Context) *model.Pagination {
 
 	pagination := model.Pagination{
 		Page: 0,
-		Size: 20,
+		Size: 10,
 	}
 
 	sizeInt, err := strconv.Atoi(size)

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"app_ink/app/core"
+	"app-ink/app/core"
 
 	"github.com/gin-gonic/gin"
 )

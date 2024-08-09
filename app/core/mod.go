@@ -1,8 +1,8 @@
 package core
 
 import (
-	"app_ink/app/core/common"
-	"app_ink/app/core/dependency"
+	"app-ink/app/core/common"
+	"app-ink/app/core/dependency"
 )
 
 // Core 结构体

@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"app_ink/app/controller"
-	"app_ink/app/controller/middleware"
-	"app_ink/app/core"
+	"app-ink/app/controller"
+	"app-ink/app/controller/middleware"
+	"app-ink/app/core"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,7 @@ package token_test
 import (
 	"testing"
 
-	"app_ink/pkg/token"
+	"app-ink/pkg/token"
 )
 
 const secret = "secret"

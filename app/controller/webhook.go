@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"app_ink/app/model"
-	"app_ink/pkg/util"
+	"app-ink/app/model"
+	"app-ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )

@@ -10,7 +10,7 @@ type TodoScanItem struct {
 	Title       pgtype.Text      `json:"title"`
 	Description pgtype.Text      `json:"description"`
 	DeadLine    pgtype.Timestamp `json:"deadline"`
-	UpdateAt    pgtype.Timestamp `json:"update_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
 
 type TodoCreateItem struct {

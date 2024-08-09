@@ -1,11 +1,11 @@
 package pg
 
 import (
-	"app_ink/app/model"
+	"app-ink/app/model"
 	"context"
 )
 
-var sqlUsers = createTableSql("users",
+var sqlUsers = createTableSQL("users",
 	"id         SERIAL PRIMARY KEY",
 	"created_at TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"updated_at TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
@@ -17,7 +17,7 @@ var sqlUsers = createTableSql("users",
 )
 
 func (pg *Pg) UserFindByUsername(ctx context.Context, username string) (credentials model.Credentials, err error) {
-	err = pg.Conn.QueryRow(ctx, `
+	err = pg.Pool.QueryRow(ctx, `
 		SELECT username, password 
 		FROM users
 		WHERE username = $1
@@ -27,7 +27,7 @@ func (pg *Pg) UserFindByUsername(ctx context.Context, username string) (credenti
 }
 
 func (pg *Pg) UserInsert(ctx context.Context, credentials model.Credentials) (err error) {
-	_, err = pg.Conn.Exec(ctx, `
+	_, err = pg.Pool.Exec(ctx, `
 		INSERT INTO users (username, password)
 		VALUES ($1, $2)
 	`, credentials.Username, credentials.Password)

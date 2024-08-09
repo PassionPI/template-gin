@@ -5,24 +5,24 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Pg struct {
-	Conn *pgx.Conn
+	Pool *pgxpool.Pool
 }
 
 func New(uri string) *Pg {
 	background := context.Background()
-	// 连接数据库
-	Conn, err := pgx.Connect(background, uri)
+
+	Pool, err := pgxpool.New(background, uri)
 
 	if err != nil {
 		log.Fatal("Unable to connect to database: %v\n", err)
 	}
 
 	// 检查连接
-	err = Conn.Ping(background)
+	err = Pool.Ping(background)
 
 	if err != nil {
 		log.Fatal(err)
@@ -30,22 +30,22 @@ func New(uri string) *Pg {
 
 	fmt.Println("Postgres Successfully connected!")
 
-	ensureTableExists(background, Conn, []string{
+	ensureTableExists(background, Pool, []string{
 		sqlUsers,
-		createIndexSql("users", "username"),
-		createIndexSql("users", "role"),
-		createIndexSql("users", "nickname"),
+		createIndexSQL("users", "username"),
+		createIndexSQL("users", "role"),
+		createIndexSQL("users", "nickname"),
 		sqlTodo,
-		createIndexSql("todo", "username"),
+		createIndexSQL("todo", "username"),
 	})
 
 	return &Pg{
-		Conn,
+		Pool,
 	}
 }
 
 // 检查表是否存在并创建表
-func ensureTableExists(ctx context.Context, db *pgx.Conn, sql []string) {
+func ensureTableExists(ctx context.Context, db *pgxpool.Pool, sql []string) {
 	chunk := ""
 	for _, s := range sql {
 		chunk += s
@@ -56,7 +56,7 @@ func ensureTableExists(ctx context.Context, db *pgx.Conn, sql []string) {
 	}
 }
 
-func createIndexSql(tableName string, column string) string {
+func createIndexSQL(tableName string, column string) string {
 	return fmt.Sprintf(
 		`CREATE INDEX IF NOT EXISTS idx_%s_%s ON %s(%s);`,
 		tableName,
@@ -66,7 +66,7 @@ func createIndexSql(tableName string, column string) string {
 	)
 }
 
-func createTableSql(tableName string, kv ...string) string {
+func createTableSQL(tableName string, kv ...string) string {
 	start := fmt.Sprintf(
 		`CREATE TABLE IF NOT EXISTS %s (`,
 		tableName,

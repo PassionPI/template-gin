@@ -1,11 +1,11 @@
 package pg
 
 import (
-	"app_ink/app/model"
+	"app-ink/app/model"
 	"context"
 )
 
-var sqlTodo = createTableSql("todo",
+var sqlTodo = createTableSQL("todo",
 	"id          SERIAL PRIMARY KEY",
 	"created_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"updated_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
@@ -17,7 +17,7 @@ var sqlTodo = createTableSql("todo",
 )
 
 func (pg *Pg) TodoInsert(ctx context.Context, username string, todo *model.TodoCreateItem) (err error) {
-	_, err = pg.Conn.Exec(ctx, `
+	_, err = pg.Pool.Exec(ctx, `
 		INSERT INTO todo (username, title, deadline, description)
 		VALUES ($1, $2)
 	`,
@@ -51,11 +51,11 @@ func (pg *Pg) TodoFindByUsername(
 	ctx context.Context,
 	param *TodoFindByUsernameParams,
 ) (todos []model.TodoScanItem, err error) {
-	rows, err := pg.Conn.Query(ctx, `
-		SELECT id, title, done, deadline, description
+	rows, err := pg.Pool.Query(ctx, `
+		SELECT id, title, done, updated_at, deadline, description
 		FROM todo
 		WHERE username = $1
-		ORDER BY created_at DESC
+		ORDER BY id DESC
 		OFFSET $2
 		LIMIT $3
 	`,
@@ -74,6 +74,7 @@ func (pg *Pg) TodoFindByUsername(
 			&todo.ID,
 			&todo.Title,
 			&todo.Done,
+			&todo.UpdatedAt,
 			&todo.DeadLine,
 			&todo.Description,
 		)
@@ -87,7 +88,7 @@ func (pg *Pg) TodoFindByUsername(
 }
 
 func (pg *Pg) TodoFindById(ctx context.Context, id int) (todo model.TodoScanItem, err error) {
-	err = pg.Conn.QueryRow(ctx, `
+	err = pg.Pool.QueryRow(ctx, `
 		SELECT id, title, done, deadline, description
 		FROM todo
 		WHERE id = $1
@@ -103,7 +104,7 @@ func (pg *Pg) TodoFindById(ctx context.Context, id int) (todo model.TodoScanItem
 }
 
 func (pg *Pg) TodoDeleteById(ctx context.Context, id int) (err error) {
-	_, err = pg.Conn.Exec(ctx, `
+	_, err = pg.Pool.Exec(ctx, `
 		DELETE FROM todo
 		WHERE id = $1
 	`, id)
@@ -112,7 +113,7 @@ func (pg *Pg) TodoDeleteById(ctx context.Context, id int) (err error) {
 }
 
 func (pg *Pg) TodoUpdateById(ctx context.Context, todo *model.TodoUpdateItem) (err error) {
-	_, err = pg.Conn.Exec(ctx, `
+	_, err = pg.Pool.Exec(ctx, `
 		UPDATE todo
 		SET 
 			updated_at = NOW(),

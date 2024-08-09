@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"app_ink/app/model"
-	"app_ink/pkg/util"
+	"app-ink/app/model"
+	"app-ink/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +50,7 @@ func (ctrl *Controller) TodoAdd(c *gin.Context) {
 		return
 	}
 
-	err = ctrl.core.Dep.Pg.TodoInsert(ctx, username.(string), body)
+	err = ctrl.core.Dep.Pg.TodoInsert(ctx, username.(string), &body)
 
 	if err != nil {
 		util.Err(c, "Failed to insert todo")
@@ -71,7 +71,7 @@ func (ctrl *Controller) TodoUpdate(c *gin.Context) {
 		return
 	}
 
-	err = ctrl.core.Dep.Pg.TodoUpdateById(ctx, body)
+	err = ctrl.core.Dep.Pg.TodoUpdateById(ctx, &body)
 
 	if err != nil {
 		util.Err(c, "Failed to update todo")

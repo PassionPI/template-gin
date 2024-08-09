@@ -26,6 +26,8 @@ func New(uri string) *Rds {
 		panic(fmt.Sprintf("无法连接到 Redis: %v", err))
 	}
 
+	fmt.Println("Redis Successfully connected!")
+
 	return &Rds{
 		Client,
 	}

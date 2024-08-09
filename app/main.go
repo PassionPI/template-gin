@@ -2,10 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"os"
 	"time"
 
-	"app_ink/app/core"
-	"app_ink/pkg/graceful"
+	"app-ink/app/core"
+	"app-ink/app/messages"
+	"app-ink/pkg/graceful"
+	"app-ink/pkg/rsa256"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -39,15 +46,18 @@ ENV:
 - [x] REDIS_URL
 - [ ] RABBIT_MQ_URL
 */
+
+var ctx, cancel = context.WithCancel(context.Background())
+
 func main() {
-	background := context.Background()
 	core := core.New()
 
-	defer core.Dep.Pg.Conn.Close(background)
+	defer cancel()
+	defer core.Dep.Pg.Pool.Close()
 	defer core.Dep.Rds.Client.Close()
-	// defer core.Dep.Mongo.Client.Disconnect(context.TODO())
 
-	initialize(core.Dep.Env.VolumePath)
+	initStatic(core.Dep.Env.VolumePath)
+	initMessages(core)
 
 	graceful.Listen(
 		createEngine(core),
@@ -56,10 +66,32 @@ func main() {
 	)
 }
 
+func initStatic(VolumePath string) {
+	basePem := VolumePath + "/pem"
+	baseLog := VolumePath + "/log"
+	{
+		rsa256.SetBasePath(basePem)
+		rsa256.CreateRsaPem()
+	}
+	{
+		err := os.MkdirAll(baseLog, os.ModePerm)
+		if err != nil {
+			fmt.Println("Create folder fail:", baseLog, err)
+			os.Exit(1)
+		}
+		file, _ := os.Create(baseLog + "/gin.log")
+		gin.DefaultWriter = io.MultiWriter(file, os.Stdout)
+	}
+}
+
+func initMessages(core *core.Core) {
+	go messages.New(core).Listen(ctx)
+}
+
 // sudo docker run \
 // 	-p 9988:8080 \
 // 	-d \
 // 	-e JWT_SECRET="asdf" \
 // 	-e REDIS_URI="redis://192.168.31.88:6379" \
 // 	-e POSTGRES_URI="postgres://postgres:postgres@192.168.31.88:5432/postgres?sslmode=disable" \
-// 	app_ink:0
+// 	app-ink:0

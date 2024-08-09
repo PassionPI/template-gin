@@ -2,6 +2,7 @@
   "cSpell.words": [
     "amqp",
     "bson",
+    "BUSYGROUP",
     "cpus",
     "dbname",
     "gocron",
@@ -10,6 +11,8 @@
     "pgdialect",
     "pgdriver",
     "pgtype",
+    "PGTZ",
+    "pgxpool",
     "rabbitmq",
     "sslmode",
     "TIMESTAMPTZ",

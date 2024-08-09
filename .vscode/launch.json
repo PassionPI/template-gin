@@ -11,10 +11,9 @@
       "mode": "auto",
       "program": "${workspaceFolder}/app",
       "env": {
-        "IMAGE": "app_ink",
+        "IMAGE": "app-ink",
         "JWT_SECRET": "JWT_SECRET",
         "REDIS_URI": "redis://localhost:6379",
-        "MONGODB_URI": "mongodb://localhost:27017",
         "POSTGRES_URI": "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
       }
     }
