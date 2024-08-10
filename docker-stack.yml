@@ -5,8 +5,8 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/jrjr/postgres:16.3-alpine3.20
     networks:
       - overlay
-    # ports:
-    #   - "10001:5432"
+    ports:
+      - "10001:5432"
     volumes:
       - db-postgres:/var/lib/postgresql/data
     environment:
@@ -29,8 +29,8 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/jrjr/redis:7.2.5-alpine3.20
     networks:
       - overlay
-    # ports:
-    #   - "10002:6379"
+    ports:
+      - "10002:6379"
     volumes:
       - mid-redis:/data
     environment:
