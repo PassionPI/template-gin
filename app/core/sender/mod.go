@@ -9,6 +9,7 @@ import (
 type Sender struct {
 	dep             *dependency.Dependency
 	StreamConfigMap StreamConfigMap
+	StreamConfigs   []xStream.StreamConfig
 }
 
 type StreamConfigMap struct {
@@ -17,11 +18,16 @@ type StreamConfigMap struct {
 }
 
 func New(dep *dependency.Dependency) *Sender {
+	configMap := StreamConfigMap{
+		StreamHi:    xStream.StreamConfig{Name: "stream-hi", MaxLen: 1000, Count: 1},
+		StreamHello: xStream.StreamConfig{Name: "stream-hello", MaxLen: 1000, Count: 1},
+	}
 	return &Sender{
-		dep: dep,
-		StreamConfigMap: StreamConfigMap{
-			StreamHi:    xStream.StreamConfig{Name: "stream-hi", MaxLen: 1000, Count: 1},
-			StreamHello: xStream.StreamConfig{Name: "stream-hello", MaxLen: 1000, Count: 1},
+		dep:             dep,
+		StreamConfigMap: configMap,
+		StreamConfigs: []xStream.StreamConfig{
+			configMap.StreamHi,
+			configMap.StreamHello,
 		},
 	}
 }

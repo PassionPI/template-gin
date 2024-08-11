@@ -23,15 +23,12 @@ func New(core *core.Core) *Messages {
 	return &Messages{
 		Stream: xStream.New(
 			&xStream.NewParams{
-				Group:       "my-group",
-				Consumer:    "my-consumer",
-				Handler:     receiver.handler,
-				Limiter:     limiter,
-				RedisClient: core.Dep.Rds.Client,
-				StreamConfigs: []xStream.StreamConfig{
-					core.Sender.StreamConfigMap.StreamHi,
-					core.Sender.StreamConfigMap.StreamHello,
-				},
+				Group:         "my-group",
+				Consumer:      "my-consumer",
+				Handler:       receiver.handler,
+				Limiter:       limiter,
+				RedisClient:   core.Dep.Rds.Client,
+				StreamConfigs: core.Sender.StreamConfigs,
 			},
 		),
 	}
