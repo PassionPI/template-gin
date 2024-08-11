@@ -1,4 +1,4 @@
-package tasks
+package corn
 
 import (
 	"fmt"
@@ -9,18 +9,18 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Tasks struct {
+type Cron struct {
 	Scheduler *gocron.Scheduler
 }
 
-func New(redisClient *redis.Client) *Tasks {
+func New(redisClient *redis.Client) *Cron {
 	Scheduler := gocron.NewScheduler(time.UTC)
 	locker, err := lock.NewRedisLocker(redisClient, lock.WithTries(1))
 	if err != nil {
 		panic(fmt.Errorf("failed to create redis locker: %w", err))
 	}
 	Scheduler.WithDistributedLocker(locker)
-	return &Tasks{
+	return &Cron{
 		Scheduler,
 	}
 }

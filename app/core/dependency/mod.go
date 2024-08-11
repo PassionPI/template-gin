@@ -3,7 +3,7 @@ package dependency
 import (
 	"os"
 
-	"app-ink/app/controller/tasks"
+	"app-ink/app/core/corn"
 	"app-ink/app/service/pg"
 	"app-ink/app/service/rds"
 	"app-ink/pkg/token"
@@ -35,27 +35,26 @@ func getEnv() *env {
 // Dependency 结构体
 // 整个应用所有依赖
 type Dependency struct {
-	Env       *env
-	Rds       *rds.Rds
-	Pg        *pg.Pg
-	Token     *token.Token
-	Scheduler *tasks.Tasks
+	Env   *env
+	Rds   *rds.Rds
+	Pg    *pg.Pg
+	Cron  *corn.Cron
+	Token *token.Token
 }
 
 // New Dependency 结构体
 func New() *Dependency {
 	Env := getEnv()
-
 	Rds := rds.New(Env.RedisURI)
 	Pg := pg.New(Env.PostgresURI)
+	Cron := corn.New(Rds.Client)
 	Token := token.New(Env.JwtSecret)
-	Scheduler := tasks.New(Rds.Client)
 
 	return &Dependency{
-		Pg:        Pg,
-		Env:       Env,
-		Rds:       Rds,
-		Token:     Token,
-		Scheduler: Scheduler,
+		Env:   Env,
+		Rds:   Rds,
+		Pg:    Pg,
+		Cron:  Cron,
+		Token: Token,
 	}
 }
