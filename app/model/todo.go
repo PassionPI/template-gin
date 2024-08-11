@@ -20,10 +20,10 @@ type TodoCreateItem struct {
 }
 
 type TodoUpdateItem struct {
-	ID   int  `json:"id"`
-	Done bool `json:"done"`
-	// Title       pgtype.Text `json:"title"`                 // 标题
-	// DeadLine    string      `json:"deadline,omitempty"`    // 可选字段
-	// Description string      `json:"description,omitempty"` // 可选字段
-	// Username    string      `json:"username,omitempty"`    // 可选字段
+	ID          int    `json:"id"`
+	Done        bool   `json:"done"`
+	Title       string `json:"title"`                 // 标题
+	DeadLine    string `json:"deadline,omitempty"`    // 可选字段
+	Description string `json:"description,omitempty"` // 可选字段
+	Username    string `json:"username,omitempty"`    // 可选字段
 }

@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"app-ink/app/controller/messages"
 	"app-ink/app/core"
-	"app-ink/app/messages"
 	"app-ink/pkg/graceful"
 	"app-ink/pkg/rsa256"
 
@@ -41,7 +41,6 @@ TODO:
 ENV:
 - [x] GIN_MODE
 - [x] JWT_SECRET
-- [x] MONGODB_URI
 - [x] POSTGRES_URI
 - [x] REDIS_URL
 - [ ] RABBIT_MQ_URL
@@ -57,10 +56,10 @@ func main() {
 	defer core.Dep.Rds.Client.Close()
 
 	initStatic(core.Dep.Env.VolumePath)
-	initMessages(core)
+	initAsync(core)
 
 	graceful.Listen(
-		createEngine(core),
+		initEngine(core),
 		":8080",
 		30*time.Second,
 	)
@@ -84,8 +83,8 @@ func initStatic(VolumePath string) {
 	}
 }
 
-func initMessages(core *core.Core) {
-	go messages.New(core).Listen(ctx)
+func initAsync(core *core.Core) {
+	go messages.New(core).Stream.Listen(ctx)
 }
 
 // sudo docker run \

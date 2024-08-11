@@ -19,7 +19,7 @@ var sqlTodo = createTableSQL("todo",
 func (pg *Pg) TodoInsert(ctx context.Context, username string, todo *model.TodoCreateItem) (err error) {
 	_, err = pg.Pool.Exec(ctx, `
 		INSERT INTO todo (username, title, deadline, description)
-		VALUES ($1, $2)
+		VALUES ($1, $2, $3, $4)
 	`,
 		username,
 		todo.Title,

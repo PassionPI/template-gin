@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func createEngine(core *core.Core) *gin.Engine {
+func initEngine(core *core.Core) *gin.Engine {
 
 	ctrl := controller.New(core)
 	mids := middleware.New(core)

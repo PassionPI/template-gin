@@ -1,79 +1,79 @@
-package messages
+package xStream
 
 import (
 	"context"
 	"log"
-	"reflect"
 	"sync"
 
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/time/rate"
-
-	"app-ink/app/core"
 )
 
+// Messages redis stream consumer
 type Messages struct {
-	core          *core.Core
+	rds           *redis.Client
 	limiter       *rate.Limiter
-	channel       chan messageChannel
+	channel       chan channel
 	waitGroup     sync.WaitGroup
 	group         string
 	consumer      string
-	configs       []streamConfig
-	StreamConfigs streamConfigs
+	streamConfigs []StreamConfig
+	handler       func(ctx context.Context, stream string, value map[string]any) error
 }
 
-type messageChannel struct {
-	Tag     string
-	Stream  string
-	Message redis.XMessage
+// NewParams the params for create a new instance of Messages
+type NewParams struct {
+	RedisClient   *redis.Client
+	Limiter       Limiter
+	Group         string         //
+	Consumer      string         //
+	StreamConfigs []StreamConfig //
+	Handler       func(ctx context.Context, stream string, value map[string]any) error
 }
 
-type streamConfig struct {
+// Limiter rate limiter config item
+type Limiter struct {
+	Limit float64
+	Burst int
+}
+
+// StreamConfig redis stream config item
+type StreamConfig struct {
 	Name   string
 	MaxLen int64 // max message queued of stream
 	Count  int64 // read count for one time
 }
 
-type streamConfigs struct {
-	StreamHi    streamConfig
-	StreamHello streamConfig
+type channel struct {
+	Tag     string
+	Stream  string
+	Message redis.XMessage
 }
 
-func New(core *core.Core) *Messages {
-	StreamConfigs := streamConfigs{
-		StreamHi:    streamConfig{Name: "stream-hi", MaxLen: 1000, Count: 1},
-		StreamHello: streamConfig{Name: "stream-hello", MaxLen: 1000, Count: 1},
-	}
-
-	var configs []streamConfig
-	v := reflect.ValueOf(StreamConfigs)
-	for i := 0; i < v.NumField(); i++ {
-		if field, ok := v.Field(i).Interface().(streamConfig); ok {
-			configs = append(configs, field)
-		}
-	}
-
+// New create a new instance of Messages
+func New(params *NewParams) *Messages {
 	return &Messages{
-		core:          core,
-		limiter:       rate.NewLimiter(1, 1),
-		channel:       make(chan messageChannel),
+		channel:       make(chan channel),
 		waitGroup:     sync.WaitGroup{},
-		group:         "my-group",
-		consumer:      "my-consumer",
-		configs:       configs,
-		StreamConfigs: StreamConfigs,
+		rds:           params.RedisClient,
+		limiter:       rate.NewLimiter(rate.Limit(params.Limiter.Limit), params.Limiter.Burst),
+		group:         params.Group,
+		consumer:      params.Consumer,
+		streamConfigs: params.StreamConfigs,
+		handler:       params.Handler,
 	}
 }
 
-func (m *Messages) send(
+// Sender send message to stream
+func Sender(
 	ctx context.Context,
-	config streamConfig,
-	message any,
+	RedisClient *redis.Client,
+	config StreamConfig,
+	message map[string]any,
 ) error {
-	err := m.core.Dep.Rds.Client.XAdd(ctx, &redis.XAddArgs{
+	err := RedisClient.XAdd(ctx, &redis.XAddArgs{
 		Stream: config.Name,
-		Values: message,
+		Values: message, //!!! Values only support <map[string]any> !!!
 		MaxLen: config.MaxLen,
 	}).Err()
 
@@ -84,36 +84,7 @@ func (m *Messages) send(
 	return nil
 }
 
-func (m *Messages) listener(
-	ctx context.Context,
-) {
-	rds := m.core.Dep.Rds.Client
-	for {
-		select {
-		case ch := <-m.channel:
-			values := ch.Message.Values
-			stream := ch.Stream
-
-			switch stream {
-			case m.StreamConfigs.StreamHi.Name:
-				m.receiveHi(ctx, values)
-				// case m.StreamConfigs.StreamHello.Name:
-				// 	m.receiveHello(ctx, values)
-			}
-
-			_, err := rds.XAck(ctx, stream, m.group, ch.Message.ID).Result()
-			if err != nil {
-				log.Printf("Could not acknowledge message: %v", err)
-			}
-
-			_, err = rds.XDel(ctx, stream, ch.Message.ID).Result()
-			if err != nil {
-				log.Printf("Could not delete message: %v", err)
-			}
-		}
-	}
-}
-
+// Listen start listen stream
 func (m *Messages) Listen(ctx context.Context) {
 	m.createGroup(ctx)
 	m.startPending(ctx)
@@ -121,13 +92,36 @@ func (m *Messages) Listen(ctx context.Context) {
 	m.listener(ctx)
 }
 
+func (m *Messages) listener(
+	ctx context.Context,
+) {
+	for {
+		select {
+		case ch := <-m.channel:
+			values := ch.Message.Values
+			stream := ch.Stream
+
+			m.handler(ctx, stream, values)
+
+			_, err := m.rds.XAck(ctx, stream, m.group, ch.Message.ID).Result()
+			if err != nil {
+				log.Printf("Could not acknowledge message: %v", err)
+			}
+
+			_, err = m.rds.XDel(ctx, stream, ch.Message.ID).Result()
+			if err != nil {
+				log.Printf("Could not delete message: %v", err)
+			}
+		}
+	}
+}
+
 func (m *Messages) createGroup(
 	ctx context.Context,
 ) {
-	rds := m.core.Dep.Rds.Client
-	for _, config := range m.configs {
+	for _, config := range m.streamConfigs {
 		// 尝试创建消费者组，如果已经存在则忽略错误
-		err := rds.XGroupCreateMkStream(ctx, config.Name, m.group, "0").Err()
+		err := m.rds.XGroupCreateMkStream(ctx, config.Name, m.group, "0").Err()
 		if err != nil && err != redis.Nil &&
 			err.Error() != "BUSYGROUP Consumer Group name already exists" {
 			log.Printf("Could not create group: %v", err)
@@ -138,9 +132,9 @@ func (m *Messages) createGroup(
 func (m *Messages) startPending(
 	ctx context.Context,
 ) {
-	for _, config := range m.configs {
+	for _, config := range m.streamConfigs {
 		m.waitGroup.Add(1)
-		go func(config streamConfig) {
+		go func(config StreamConfig) {
 			defer m.waitGroup.Done()
 			m.readPending(ctx, config)
 		}(config)
@@ -149,9 +143,8 @@ func (m *Messages) startPending(
 
 func (m *Messages) readPending(
 	ctx context.Context,
-	config streamConfig,
+	config StreamConfig,
 ) {
-	rds := m.core.Dep.Rds.Client
 	for {
 		// 等待下一个可用的令牌
 		err := m.limiter.Wait(ctx)
@@ -159,7 +152,7 @@ func (m *Messages) readPending(
 			log.Printf("Rate limiter error: %v", err)
 		}
 		// 读取未处理的消息
-		pending, err := rds.XPending(ctx, config.Name, m.group).Result()
+		pending, err := m.rds.XPending(ctx, config.Name, m.group).Result()
 
 		if err != nil {
 			log.Printf("Could not get pending messages: %v", err)
@@ -167,7 +160,7 @@ func (m *Messages) readPending(
 
 		if pending.Count > 0 {
 			// 获取未处理的消息
-			pendingMessages, err := rds.XPendingExt(ctx, &redis.XPendingExtArgs{
+			pendingMessages, err := m.rds.XPendingExt(ctx, &redis.XPendingExtArgs{
 				Stream:   config.Name,
 				Group:    m.group,
 				Start:    pending.Lower,
@@ -181,7 +174,7 @@ func (m *Messages) readPending(
 
 			for _, pendingMessage := range pendingMessages {
 				// 将未处理的消息分配给当前消费者
-				claimed, err := rds.XClaim(ctx, &redis.XClaimArgs{
+				claimed, err := m.rds.XClaim(ctx, &redis.XClaimArgs{
 					Stream:   config.Name,
 					Group:    m.group,
 					Consumer: m.consumer,
@@ -193,8 +186,8 @@ func (m *Messages) readPending(
 				}
 
 				for _, message := range claimed {
-					m.channel <- messageChannel{
-						Tag:     "pending",
+					m.channel <- channel{
+						Tag:     "XClaim",
 						Stream:  config.Name,
 						Message: message,
 					}
@@ -209,8 +202,8 @@ func (m *Messages) readPending(
 func (m *Messages) startStreaming(
 	ctx context.Context,
 ) {
-	for _, config := range m.configs {
-		go func(config streamConfig) {
+	for _, config := range m.streamConfigs {
+		go func(config StreamConfig) {
 			m.waitGroup.Wait()
 			m.readStreaming(ctx, config)
 		}(config)
@@ -219,9 +212,8 @@ func (m *Messages) startStreaming(
 
 func (m *Messages) readStreaming(
 	ctx context.Context,
-	config streamConfig,
+	config StreamConfig,
 ) {
-	rds := m.core.Dep.Rds.Client
 	for {
 		// 等待下一个可用的令牌
 		err := m.limiter.Wait(ctx)
@@ -229,7 +221,7 @@ func (m *Messages) readStreaming(
 			log.Printf("Rate limiter error: %v", err)
 		}
 		// 从消费者组读取未处理的消息
-		streams, err := rds.XReadGroup(ctx, &redis.XReadGroupArgs{
+		streams, err := m.rds.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    m.group,
 			Consumer: m.consumer,
 			Streams:  []string{config.Name, ">"},
@@ -243,7 +235,7 @@ func (m *Messages) readStreaming(
 
 		for _, stream := range streams {
 			for _, message := range stream.Messages {
-				m.channel <- messageChannel{
+				m.channel <- channel{
 					Stream:  stream.Stream,
 					Message: message,
 				}

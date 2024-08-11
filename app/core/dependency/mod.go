@@ -3,9 +3,9 @@ package dependency
 import (
 	"os"
 
+	"app-ink/app/controller/tasks"
 	"app-ink/app/service/pg"
 	"app-ink/app/service/rds"
-	"app-ink/app/tasks"
 	"app-ink/pkg/token"
 )
 

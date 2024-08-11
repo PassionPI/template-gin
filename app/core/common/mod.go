@@ -1,13 +1,13 @@
 package common
 
+import "app-ink/app/core/dependency"
+
 type Common struct {
-	Error  *Error
 	Parser *Parser
 }
 
-func New() *Common {
+func New(dep *dependency.Dependency) *Common {
 	return &Common{
-		Error:  NewError(),
 		Parser: NewParser(),
 	}
 }

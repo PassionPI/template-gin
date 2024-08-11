@@ -53,7 +53,7 @@ func (ctrl *Controller) TodoAdd(c *gin.Context) {
 	err = ctrl.core.Dep.Pg.TodoInsert(ctx, username.(string), &body)
 
 	if err != nil {
-		util.Err(c, "Failed to insert todo")
+		util.Err(c, "Failed to insert todo"+err.Error())
 		return
 	}
 
