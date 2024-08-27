@@ -31,9 +31,8 @@ TODO:
 - [x] 错误处理
 - [x] 数据校验
 - [x] jwt鉴权
-- [x] Mongo数据库
 - [x] makefile {参考package.json}
-- [x] 缓存
+- [x] docker build缓存
 - [x] 定时任务
 - [x] 依赖注入
 - [x] 日志

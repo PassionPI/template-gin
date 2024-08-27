@@ -26,7 +26,7 @@ func (ctrl *Controller) Pub(c *gin.Context) {
 		return
 	}
 
-	util.Ok(c, &gin.H{"publicKey": string(publicKey)})
+	util.Ok(c, string(publicKey))
 }
 
 // Sign 注册接口

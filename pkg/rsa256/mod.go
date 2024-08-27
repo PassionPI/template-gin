@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-const defaultValidKey = "123abc"
+const testValidKey = "123abc"
 
 const privateKey = "private_key.pem"
 const publicKey = "public_key.pem"
@@ -58,9 +58,9 @@ func CreateRsaPem() error {
 	publicKeyPath := getPublicKeyPath()
 	privateKeyPath := getPrivateKeyPath()
 
-	encode, err := Encrypt(defaultValidKey)
+	encode, err := Encrypt(testValidKey)
 	decode, err := Decrypt(encode)
-	if err == nil && decode == defaultValidKey {
+	if err == nil && decode == testValidKey {
 		fmt.Println("RSA private_key.pem and private_key.pem already exist")
 		return nil
 	}
