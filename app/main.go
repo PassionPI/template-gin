@@ -19,13 +19,10 @@ import (
 *
 TODO:
 - [ ] 单元测试
-- [ ] 埋点
-- [ ] 监控
-- [ ] 配置文件
+- [ ] 埋点\日志\监控
 - [ ] 消息队列
 - [ ] 分布式
 - [ ] 压力测试
-- [ ] 性能测试
 - [x] Postgres数据库
 - [x] 优雅停机
 - [x] 错误处理
@@ -34,8 +31,6 @@ TODO:
 - [x] makefile {参考package.json}
 - [x] docker build缓存
 - [x] 定时任务
-- [x] 依赖注入
-- [x] 日志
 
 ENV:
 - [x] GIN_MODE

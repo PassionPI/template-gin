@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -58,20 +57,20 @@ func (mid *Middleware) AuthValidator() gin.HandlerFunc {
 			return
 		}
 
-		_, err = mid.core.Dep.Pg.UserFindByUsername(ctx, claims.Username)
+		// _, err = mid.core.Dep.Pg.UserFindByUsername(ctx, claims.Username)
 
-		if err != nil {
-			ctx.AbortWithStatusJSON(
-				http.StatusUnauthorized,
-				"Invalid token, user not found",
-			)
-			return
-		}
+		// if err != nil {
+		// 	ctx.AbortWithStatusJSON(
+		// 		http.StatusUnauthorized,
+		// 		"Invalid token, user not found",
+		// 	)
+		// 	return
+		// }
 
-		if claims.ExpiresAt.Time.Sub(time.Now()) < mid.core.Dep.Token.Refresh {
-			newToken, _ := mid.core.Dep.Token.Generate(claims.Username)
-			ctx.Header("Authorization", newToken)
-		}
+		// if claims.ExpiresAt.Time.Sub(time.Now()) < mid.core.Dep.Token.Refresh {
+		// 	newToken, _ := mid.core.Dep.Token.Generate(claims.Username)
+		// 	ctx.Header("Authorization", newToken)
+		// }
 
 		// Store the user ID in the context for later use
 		ctx.Set("username", claims.Username)

@@ -6,7 +6,7 @@ import (
 )
 
 var sqlTodo = createTableSQL("todo",
-	"id          SERIAL PRIMARY KEY",
+	"id          BIGSERIAL PRIMARY KEY",
 	"created_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"updated_at  TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'UTC')",
 	"deadline    TIMESTAMPTZ",
@@ -18,12 +18,12 @@ var sqlTodo = createTableSQL("todo",
 
 func (pg *Pg) TodoInsert(ctx context.Context, username string, todo *model.TodoCreateItem) (err error) {
 	_, err = pg.Pool.Exec(ctx, `
-		INSERT INTO todo (username, title, deadline, description)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO todo (username, title, description)
+		VALUES ($1, $2, $3)
 	`,
 		username,
 		todo.Title,
-		todo.DeadLine,
+		// todo.DeadLine,
 		todo.Description,
 	)
 

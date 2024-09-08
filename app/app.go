@@ -41,8 +41,8 @@ func initEngine(core *core.Core) *gin.Engine {
 	}
 
 	{
-		pub := router.Group("/api")
-		pub.POST("/pub", ctrl.Pub)
+		pub := router.Group("/open")
+		pub.GET("/pem", ctrl.Pub)
 		pub.POST("/sign", ctrl.Sign)
 		pub.POST("/login", ctrl.Login) // need throttle, lock
 	}
@@ -53,18 +53,21 @@ func initEngine(core *core.Core) *gin.Engine {
 			mids.AuthValidator(),
 		)
 
-		api.POST("/ping", ctrl.Ping)
+		api.GET("/ping", ctrl.Ping)
 
 		{
-			user := api.Group("/user")
-			user.POST("/privilege/put", ctrl.Echo)
-			user.POST("/privilege/get", ctrl.Echo)
-		}
-		{
-			todo := api.Group("/todo")
-			todo.POST("/add", ctrl.TodoAdd)
-			todo.POST("/list", ctrl.TodoList)
-			todo.POST("/update", ctrl.TodoUpdate)
+			v1 := api.Group("/v1")
+			{
+				user := v1.Group("/user")
+				user.POST("/privilege/put", ctrl.Echo)
+				user.POST("/privilege/get", ctrl.Echo)
+			}
+			{
+				todo := v1.Group("/todo")
+				todo.POST("/add", ctrl.TodoAdd)
+				todo.POST("/put", ctrl.TodoUpdate)
+				todo.POST("/list", ctrl.TodoList)
+			}
 		}
 	}
 
